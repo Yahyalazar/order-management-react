@@ -15,7 +15,7 @@ export const ProductService = {
                 Authorization: `Bearer ${token}` // include token in Authorization header
             }
         };
-        const response = await axios.get(`http://127.0.0.1:8000/api/products`, config);
+        const response = await axios.get(`https://api.zidoo.online/api/products`, config);
         return response.data;
     },
 
@@ -26,7 +26,7 @@ export const ProductService = {
                 Authorization: `Bearer ${token}` // include token in Authorization header
             }
         };
-        const response = await axios.get(`http://127.0.0.1:8000/api/orders`, config);
+        const response = await axios.get(`https://api.zidoo.online/api/orders`, config);
         return response.data;
     },
 
@@ -37,7 +37,7 @@ export const ProductService = {
                 Authorization: `Bearer ${token}` // include token in Authorization header
             }
         };
-        const response = await axios.put(`http://127.0.0.1:8000/api/products/${id}`, data, config);
+        const response = await axios.put(`https://api.zidoo.online/api/products/${id}`, data, config);
         return response.data;
     },
 
@@ -48,7 +48,7 @@ export const ProductService = {
                 Authorization: `Bearer ${token}` // include token in Authorization header
             }
         };
-        const response = await axios.delete(`http://127.0.0.1:8000/api/products/${id}`, config);
+        const response = await axios.delete(`https://api.zidoo.online/api/products/${id}`, config);
         return response.data;
     },
 

@@ -20,7 +20,7 @@ const AppMenu = () => {
 
             if (token) {
                 // Make logout API request
-                await axios.post('http://127.0.0.1:8000/api/logout', {}, {
+                await axios.post('https://api.zidoo.online/api/logout', {}, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },

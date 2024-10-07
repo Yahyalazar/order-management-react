@@ -51,7 +51,7 @@ const OrderPage = () => {
             },
         };
         try {
-            const response = await axios.get('http://127.0.0.1:8000/api/orders', config);
+            const response = await axios.get('https://api.zidoo.online/api/orders', config);
             setOrders(response.data);
         } catch (error) {
             console.error('Error fetching orders:', error);
@@ -142,7 +142,7 @@ const OrderPage = () => {
             },
         };
         try {
-            await axios.delete(`http://127.0.0.1:8000/api/orders/${order.id}`, config);
+            await axios.delete(`https://api.zidoo.online/api/orders/${order.id}`, config);
             let _orders = orders.filter((val) => val.id !== order.id);
             setOrders(_orders);
             setDeleteOrderDialog(false);
@@ -161,11 +161,11 @@ const OrderPage = () => {
         try {
             let response;
             if (order.id) {
-                response = await axios.put(`http://127.0.0.1:8000/api/orders/${order.id}`, order, config);
+                response = await axios.put(`https://api.zidoo.online/api/orders/${order.id}`, order, config);
                 const updatedOrders = orders.map((o) => (o.id === order.id ? response.data : o));
                 setOrders(updatedOrders);
             } else {
-                response = await axios.post('http://127.0.0.1:8000/api/orders', order, config);
+                response = await axios.post('https://api.zidoo.online/api/orders', order, config);
                 setOrders([...orders, response.data]);
             }
             setOrderDialog(false);
@@ -237,7 +237,7 @@ const OrderPage = () => {
         try {
             await Promise.all(
                 selectedOrders.map((order) =>
-                    axios.delete(`http://127.0.0.1:8000/api/orders/${order.id}`, config)
+                    axios.delete(`https://api.zidoo.online/api/orders/${order.id}`, config)
                 )
             );
             const remainingOrders = orders.filter(

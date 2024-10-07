@@ -91,7 +91,7 @@ const fetchdata = async () => {
         },
     };
     try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/orders`, config);
+        const response = await axios.get(`https://api.zidoo.online/api/orders`, config);
         setOrders(response.data);
     } catch (error) {
         console.error('Error fetching orders:', error);
@@ -103,7 +103,7 @@ useEffect(() => {
         const token = localStorage.getItem('token');
         const config = { headers: { Authorization: `Bearer ${token}` } };
         try {
-            const response = await axios.get(`http://127.0.0.1:8000/api/products`, config);
+            const response = await axios.get(`https://api.zidoo.online/api/products`, config);
             const availableProducts = response.data.filter(product => product.stock > 0);
             const outOfStockProducts = response.data.filter(product => product.stock <= 0);
 
@@ -148,7 +148,7 @@ const statusBodyTemplate = (rowData) => {
             };
 
             // Update the order status on the backend
-            await axios.put(`http://127.0.0.1:8000/api/orders/${rowData.id}`, { status: newStatus }, config);
+            await axios.put(`https://api.zidoo.online/api/orders/${rowData.id}`, { status: newStatus }, config);
 
             // Update the local state
             setOrders(prevOrders =>
@@ -384,10 +384,10 @@ const saveOrder = async (event) => {
         let response;
         if (order.id) {
             // If the order exists, update it
-            response = await axios.put(`http://127.0.0.1:8000/api/orders/${order.id}`, orderData, config);
+            response = await axios.put(`https://api.zidoo.online/api/orders/${order.id}`, orderData, config);
         } else {
             // Create a new order
-            response = await axios.post(`http://127.0.0.1:8000/api/orders`, orderData, config);
+            response = await axios.post(`https://api.zidoo.online/api/orders`, orderData, config);
         }
 
         // After successfully saving the order
@@ -474,7 +474,7 @@ const deleteSelectedOrders = async () => {
     try {
         await Promise.all(
             selectedOrders.map(order =>
-                axios.delete(`http://127.0.0.1:8000/api/orders/${order.id}`, config)
+                axios.delete(`https://api.zidoo.online/api/orders/${order.id}`, config)
             )
         );
         setOrders(orders.filter((val) => !selectedOrders.includes(val)));
