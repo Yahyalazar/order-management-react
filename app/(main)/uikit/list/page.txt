@@ -1,4 +1,4 @@
-'use client';
+/* 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { DataView, DataViewLayoutOptions } from 'primereact/dataview';
@@ -190,3 +190,4 @@ const ListDemo = () => {
 };
 
 export default ListDemo;
+ */

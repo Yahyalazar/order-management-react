@@ -289,9 +289,9 @@ const TableDemo = () => {
         return <Button icon="pi pi-search" />;
     };
 
-    const imageBodyTemplate = (rowData: Demo.Product) => {
+    /* const imageBodyTemplate = (rowData: Demo.Product) => {
         return <img src={`/demo/images/product/${rowData.image}`} onError={(e) => ((e.target as HTMLImageElement).src = 'https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png')} alt={rowData.image} className="shadow-2" width={100} />;
-    };
+    }; */
 
     const priceBodyTemplate = (rowData: Demo.Product) => {
         return formatCurrency(rowData.price as number);
@@ -429,7 +429,7 @@ const TableDemo = () => {
                     <DataTable value={products} expandedRows={expandedRows} onRowToggle={(e) => setExpandedRows(e.data)} responsiveLayout="scroll" rowExpansionTemplate={rowExpansionTemplate} dataKey="id" header={header}>
                         <Column expander style={{ width: '3em' }} />
                         <Column field="name" header="Name" sortable />
-                        <Column header="Image" body={imageBodyTemplate} />
+                        {/* <Column header="Image" body={imageBodyTemplate} /> */}
                         <Column field="price" header="Price" sortable body={priceBodyTemplate} />
                         <Column field="category" header="Category" sortable />
                         <Column field="rating" header="Reviews" sortable body={ratingBodyTemplate} />

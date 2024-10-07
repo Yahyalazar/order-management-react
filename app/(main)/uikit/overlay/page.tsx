@@ -90,7 +90,7 @@ const OverlayDemo = () => {
     };
 
     const basicDialogFooter = <Button type="button" label="OK" onClick={() => setDisplayBasic(false)} icon="pi pi-check" outlined />;
-    const imageBodyTemplate = (data: Demo.Product) => (
+    /* const imageBodyTemplate = (data: Demo.Product) => (
         <img
             src={`/demo/images/product/${data.image}`}
             alt={data.image}
@@ -100,7 +100,7 @@ const OverlayDemo = () => {
                 boxShadow: '0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)'
             }}
         />
-    );
+    ); */
     const priceBodyTemplate = (data: Demo.Product) => formatCurrency(data.price ?? 0);
     const confirmationDialogFooter = (
         <>
@@ -138,7 +138,7 @@ const OverlayDemo = () => {
                                     <img src="/demo/images/nature/nature9.jpg" alt="nature1" />
                                 </OverlayPanel>
                             </div>
-                            <div>
+                            {/* <div>
                                 <Button type="button" label="DataTable" onClick={toggleDataTable} outlined />
                                 <OverlayPanel ref={op2} appendTo={typeof window !== 'undefined' ? document.body : null} showCloseIcon id="overlay_panel" style={{ width: '450px' }}>
                                     <DataTable value={products} selection={selectedProduct || undefined} onSelectionChange={onSelectionChange} selectionMode="single" responsiveLayout="scroll" paginator rows={5} onRowSelect={onProductSelect}>
@@ -147,7 +147,7 @@ const OverlayDemo = () => {
                                         <Column field="price" header="Price" body={priceBodyTemplate} sortable headerStyle={{ minWidth: '8rem' }} />
                                     </DataTable>
                                 </OverlayPanel>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>

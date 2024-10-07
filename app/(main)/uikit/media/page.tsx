@@ -58,10 +58,10 @@ const MediaDemo = () => {
     const carouselItemTemplate = (product: Demo.Product) => {
         return (
             <div className="border-1 surface-border border-round m-1 text-center py-5">
-                <div className="mb-3">
+                {/* <div className="mb-3">
                     <img src={`/demo/images/product/${product.image}`} alt={product.name} className="w-6 shadow-2" />
-                </div>
-                <div>
+                </div> */}
+                {/* <div>
                     <h4 className="p-mb-1">{product.name}</h4>
                     <h6 className="mt-0 mb-3">${product.price}</h6>
                     <span className={`product-badge status-${product.inventoryStatus?.toLowerCase()}`}>{product.inventoryStatus}</span>
@@ -70,7 +70,7 @@ const MediaDemo = () => {
                         <Button type="button" className="mr-2" severity="success" rounded icon="pi pi-star"></Button>
                         <Button type="button" severity="help" rounded icon="pi pi-cog"></Button>
                     </div>
-                </div>
+                </div> */}
             </div>
         );
     };

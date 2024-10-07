@@ -19,7 +19,7 @@
 // import { Tag } from 'primereact/tag';
 // import { classNames } from 'primereact/utils';
 // import React, { useEffect, useRef, useState } from 'react';
-// import { ProductService } from '../../../../demo/service/ProductService';
+// import { ProductService } from './demo/service/ProductService';
 // import { Demo } from '@/types';
 // import { Calendar } from 'primereact/calendar';
 // import { ColumnFilterElementTemplateOptions } from 'primereact/column';
