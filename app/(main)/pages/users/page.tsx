@@ -2,6 +2,7 @@
 'use client';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
+import { DropdownChangeEvent } from 'primereact/dropdown';
 import { DataTable } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
 import { FilterMatchMode } from 'primereact/api';
@@ -10,29 +11,41 @@ import { Dropdown } from 'primereact/dropdown';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, ChangeEvent } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
 const Crud = () => {
-    let emptyUser = {
+    let emptyUser: User = {
         id: '',
         name: '',
         email: '',
-        password: '', // Add this line
-        email_verified_at: null,
+        password: '',
+        email_verified_at: null as string | null,
         created_at: '',
         updated_at: '',
         is_admin: false
     };
+    interface User {
+        id: string;
+        name: string;
+        email: string;
+        password: string;
+        email_verified_at: string | null;
+        created_at: string;
+        updated_at: string;
+        is_admin: boolean;
+    }
 
 
-    const [users, setUsers] = useState(null);
+
+    const [users, setUsers] = useState<User[]>([]);
     const [userDialog, setUserDialog] = useState(false);
     const [deleteUserDialog, setDeleteUserDialog] = useState(false);
     const [deleteUsersDialog, setDeleteUsersDialog] = useState(false);
     const [user, setUser] = useState(emptyUser);
-    const [selectedUsers, setSelectedUsers] = useState(null);
+    const [selectedUsers, setSelectedUsers] = useState<User[] | null>(null);
+
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState<string | null>(null);
     const toast = useRef<Toast>(null);
@@ -66,12 +79,11 @@ const Crud = () => {
         }
     };
 
-    const editUser = (user) => {
+    const editUser = (user: User) => {
         setUser({ ...user });
         setUserDialog(true);
     };
-
-    const confirmDeleteUser = (user) => {
+    const confirmDeleteUser = (user: User) => {
         setUser(user); // Set the user to be deleted
         setDeleteUserDialog(true); // Open the delete confirmation dialog
     };
@@ -132,12 +144,12 @@ const Crud = () => {
 
         try {
             await axios.delete(`http://127.0.0.1:8000/api/users/${user.id}`, config);
-
+            if (users) {
             let _users = users.filter((val: any) => val.id !== user.id);
             setUsers(_users);
             setDeleteUserDialog(false);
             setUser(emptyUser);
-
+}
             toast.current?.show({
                 severity: 'success',
                 summary: 'نجاح',
@@ -150,7 +162,7 @@ const Crud = () => {
         }
     };
 
-    const formatDate = (dateString) => {
+    const formatDate = (dateString: string) => {
         if (!dateString) return 'N/A'; // Handle null or empty values
 
         const date = new Date(dateString);
@@ -160,19 +172,14 @@ const Crud = () => {
     };
 
 
-    const onInputChange = (e, name) => {
-        const val = name === 'is_admin' ? e.value : (e.value !== undefined ? e.value : e.target.value) || '';
-        let _user = { ...user };
-        _user[`${name}`] = val;
 
-        setUser(_user);
-    };
+    const onInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | DropdownChangeEvent, name: keyof typeof user) => {
+        let val = 'value' in e ? e.value : (e.target as HTMLInputElement).value || '';
 
-
-    const openNew = () => {
-        setUser(emptyUser);
-        setSubmitted(false);
-        setUserDialog(true);
+        setUser(prevUser => ({
+            ...prevUser,
+            [name]: val
+        }));
     };
 
     const hideDialog = () => {
@@ -222,6 +229,10 @@ const Crud = () => {
             <Button label="نعم" icon="pi pi-check" text onClick={deleteUser} />
         </>
     );
+
+    function openNew(event: React.MouseEvent<HTMLButtonElement>): void {
+        throw new Error('Function not implemented.');
+    }
 
     return (
         <div className="grid crud-demo">
@@ -287,17 +298,17 @@ const Crud = () => {
     <div className="field">
     <label htmlFor="is_admin">الدور</label>
     <Dropdown
-        id="is_admin"
-        value={user.is_admin}
-        options={[
-            { label: 'Admin', value: true },
-            { label: 'User', value: false }
-        ]}
-        onChange={(e) => onInputChange(e, 'is_admin')}
-        placeholder="اختر الدور"
-        required
-        className={classNames({ 'p-invalid': submitted && user.is_admin === null })}
-    />
+    id="is_admin"
+    value={user.is_admin}
+    options={[
+        { label: 'Admin', value: true },
+        { label: 'User', value: false }
+    ]}
+    onChange={(e) => onInputChange(e, 'is_admin')}  // Correctly handles the event now
+    placeholder="اختر الدور"
+    required
+    className={classNames({ 'p-invalid': submitted && user.is_admin === null })}
+/>
 </div>
 </Dialog>
 

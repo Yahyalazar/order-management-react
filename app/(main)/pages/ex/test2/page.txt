@@ -704,7 +704,7 @@ return (
                             </div>
                         </Dialog>
 
-                <Dialog visible={productDialog} style={{ width: '450px' }} header="Products" modal onHide={() => setProductDialog(false)} dir='rtl'>
+                <Dialog visible={productDialog} style={{ width: '450px' }} header="Products" modal onHide={() => setProductDialog(false)} className='rtl-text'>
                     <DataTable value={selectedOrderItems} responsiveLayout="scroll">
                         <Column field="product.name" header="اسم المنتج" sortable />
                         <Column field="quantity" header="كمية" sortable />

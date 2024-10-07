@@ -22,15 +22,6 @@ import { config } from 'process';
 /* @todo استخدام 'as any' لأنواع هنا. سيتم الإصلاح في النسخة القادمة بسبب مشكلة نوع حدث onSelectionChange. */
 const Crud = () => {
     let emptyProduct: Demo.Product = {
-      /*    id: '',
-        name: '',
-        image: '',
-        description: '',
-        category: '',
-        price: 0,
-        quantity: 0,
-        rating: 0,
-        inventoryStatus: 'حجز' */
     id: '',
     name: '',
     price: 0,
@@ -39,21 +30,28 @@ const Crud = () => {
     updated_at: ''
     };
 
-    const [products, setProducts] = useState(null);
+    let _product: {
+        id: string;
+        name: string;
+        price: number;
+        stock: number;
+        created_at: string;
+        updated_at: string;
+        [key: string]: string | number; // Adding index signature
+    };
+
+    const [products, setProducts] = useState<Demo.Product[]>([]);  // Initialize as an empty array;
     const [productDialog, setProductDialog] = useState(false);
     const [deleteProductDialog, setDeleteProductDialog] = useState(false);
-    const [filters, setFilters] = useState<DataTableFilterMeta>({
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-        price: { value: null, matchMode: FilterMatchMode.CONTAINS },
-       // 'country.name': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-       // representative: { value: null, matchMode: FilterMatchMode.IN },
-        //status: { value: null, matchMode: FilterMatchMode.EQUALS },
-        //verified: { value: null, matchMode: FilterMatchMode.EQUALS }
+    const [filters, setFilters] = useState({
+        global: { value: null as string | null, matchMode: FilterMatchMode.CONTAINS },
+        name: { value: null as string | null, matchMode: FilterMatchMode.STARTS_WITH },
+        price: { value: null as string | null, matchMode: FilterMatchMode.CONTAINS },
     });
+
     const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
     const [product, setProduct] = useState<Demo.Product>(emptyProduct);
-    const [selectedProducts, setSelectedProducts] = useState(null);
+    const [selectedProducts, setSelectedProducts] = useState<Demo.Product[] | null>(null);
     const [submitted, setSubmitted] = useState(false);
  const [globalFilter, setGlobalFilter] = useState<string | null>(null);
     const toast = useRef<Toast>(null);
@@ -71,10 +69,9 @@ const Crud = () => {
     const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         let _filters = { ...filters };
-console.log(value);
-        // @ts-ignore
-        _filters['global'].value = value;
-        console.log(_filters);
+
+        _filters['global'].value = value; // `value` can now be either `null` or `string`
+
         setFilters(_filters);
         setGlobalFilterValue(value);
     };
@@ -126,7 +123,7 @@ console.log(value);
             try {
                 // Save or update product logic here
                 if (product.id) {
-                    const index = findIndexById(product.id);
+                    const index = findIndexById(parseInt(product.id));
                     _products[index] = _product;
                     await ProductService.updateProducts(product, product.id);
                     fetchdata();
@@ -155,14 +152,12 @@ console.log(value);
     };
 
 
-    const formatDate = (dateString) => {
-        if (!dateString) return 'N/A'; // Handle empty or undefined dates
-
+    const formatDate = (dateString: string) => {
+        if (!dateString) return 'N/A';
         const date = new Date(dateString);
-        if (isNaN(date.getTime())) return 'Invalid Date'; // Handle invalid dates
-
         return new Intl.DateTimeFormat('en-us', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
     };
+
 
 
     const editProduct = (product: Demo.Product) => {
@@ -206,7 +201,7 @@ console.log(value);
     };
 
 
-    const findIndexById = (id: int) => {
+    const findIndexById = (id: number) => {
         let index = -1;
         for (let i = 0; i < (products as any)?.length; i++) {
             if ((products as any)[i].id === id) {
@@ -250,27 +245,24 @@ console.log(value);
     }; */
 
     const deleteSelectedProducts = async () => {
+        if (!selectedProducts) return;
         const token = localStorage.getItem('token');
         const config = {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
         };
-
         try {
             await Promise.all(
-                selectedProducts.map(product =>
-                    axios.delete(`http://127.0.0.1:8000/api/products/${product.id}`, config)
-                )
+                selectedProducts?.map((product:any) => axios.delete(`http://127.0.0.1:8000/api/products/${product.id}`, config))
             );
-            setProducts(products.filter((val) => !selectedProducts.includes(val)));
+            setProducts(products.filter((val:any) => !selectedProducts?.includes(val)));
             setDeleteProductsDialog(false);
-            toast.current.show({ severity: 'success', summary: 'تم بنجاح', detail: 'تم حذف الطلبات بنجاح', life: 3000 });
+            toast.current?.show({ severity: 'success', summary: 'تم بنجاح', detail: 'تم حذف الطلبات بنجاح', life: 3000 });
         } catch (error) {
             console.error('Error deleting selected orders:', error);
-            toast.current.show({ severity: 'error', summary: 'خطأ', detail: 'فشل في حذف الطلبات', life: 3000 });
+            toast.current?.show({ severity: 'error', summary: 'خطأ', detail: 'فشل في حذف الطلبات', life: 3000 });
         }
     };
+
 
     /* const onCategoryChange = (e: RadioButtonChangeEvent) => {
         let _product = { ...product };
@@ -278,22 +270,29 @@ console.log(value);
         setProduct(_product);
     }; */
 
-    const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
-        const val = (e.target && e.target.value) || '';
-        let _product = { ...product };
-        _product[`${name}`] = val;
-
-        setProduct(_product);
+    const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, name: keyof Demo.Product) => {
+        const val = (e.target as HTMLInputElement).value || '';  // Cast e.target to HTMLInputElement or HTMLTextAreaElement
+        setProduct(prevProduct => ({
+            ...prevProduct,
+            [name]: val
+        }));
     };
 
-    const onInputNumberChange = (e: InputNumberValueChangeEvent, name: string) => {
+
+
+
+    const onInputNumberChange = (e: InputNumberValueChangeEvent, name: keyof typeof _product) => {
         const val = e.value || 0;
+
         let _product = { ...product };
-        _product[`${name}`] = val;
+
+        if (name === 'price' || name === 'stock') {
+            _product[name] = val; // Directly access known properties 'price' and 'stock'
+        }
 
         setProduct(_product);
     };
-
+    
     const leftToolbarTemplate = () => {
         return (
             <React.Fragment>
@@ -398,22 +397,25 @@ console.log(value);
 
     const header = (
         <div className="flex justify-content-between">
-            <h5 className="m-2 ">إدارة المنتجات</h5>
+            <h5 className="m-2">إدارة المنتجات</h5>
             <span className="p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText
-          type="search"
-          placeholder="Search..."
-          onInput={(e) => {
-            const value = e.target.value;
-            setGlobalFilter(value);
-            setFilters({ ...filters, global: { value, matchMode: FilterMatchMode.CONTAINS },
-             });
-        }}
-        />
+                    type="search"
+                    placeholder="Search..."
+                    onInput={(e) => {
+                        const value = (e.target as HTMLInputElement).value;
+                        setGlobalFilter(value);
+                        setFilters({
+                            ...filters,
+                            global: { value, matchMode: FilterMatchMode.CONTAINS }
+                        });
+                    }}
+                />
             </span>
         </div>
     );
+
 
     const productDialogFooter = (
         <>
@@ -516,7 +518,7 @@ console.log(value);
                             </div>
                             <div className="field col">
                                 <label htmlFor="quantity">الكمية</label>
-                                <InputNumber id="quantity" min={0} value={product.stock} onValueChange={(e) => onInputNumberChange(e, 'stock')} integeronly />
+                                <InputNumber id="quantity" min={0} value={product.stock} onValueChange={(e) => onInputNumberChange(e, 'stock')} />
                             </div>
                         </div>
                     </Dialog>

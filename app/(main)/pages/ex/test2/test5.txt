@@ -1,6 +1,7 @@
-.created_at .p-column-filter-buttonbar {
+.p-column-filter-buttonbar {
     display: none;
 }
+
 .rtl-text {
     direction: rtl;
     text-align: right;

@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "target": "es5",
+    "strict": false,
+
     "lib": [
       "dom",
       "dom.iterable",
@@ -34,7 +36,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-  ],
+, "app/(main)/pages/ex/page.bactxtt"  ],
   "exclude": [
     "node_modules"
   ]

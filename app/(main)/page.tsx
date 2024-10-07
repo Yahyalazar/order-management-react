@@ -98,7 +98,7 @@ const Dashboard: React.FC = () => {
         }
     };
 
-    const formatCurrency = (value: number) => {
+    const formatCurrency = (value: number | null | undefined) => {
         return value?.toLocaleString('en-US', {
             style: 'currency',
             currency: 'USD',
@@ -184,7 +184,7 @@ const Dashboard: React.FC = () => {
                 </Dialog>
 
                 {/* Order Details Dialog */}
-                <Dialog header="تفاصيل الطلب" visible={orderDialogVisible} style={{ width: '50vw' }} onHide={() => setOrderDialogVisible(false)} dir="rtl">
+                <Dialog header="تفاصيل الطلب" visible={orderDialogVisible} style={{ width: '50vw' }} onHide={() => setOrderDialogVisible(false)} className='rtl-text'>
                     {selectedOrder && (
                         <div>
                             <h3>رمز الطلب: {selectedOrder.id}</h3>

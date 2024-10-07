@@ -26,38 +26,41 @@ import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import './test5.css';
 
 const OrderPage = () => {
-const emptyOrder = {
-    id: '',
-    status: 'new',
-    total_price: 0,
-    created_at: '',
-    updated_at: '',
-    items: [],
-};
+    const emptyOrder: Order = {
+        id: '',
+        fullname: '',
+        phone: '',
+        address: '',
+        status: 'new',
+        total_price: 0,
+        created_at: '',
+        updated_at: '',
+        items: [],
+    };
 
-const [orders, setOrders] = useState([]);
-const [orderItems, setOrderItems] = useState([]);
-const [products, setProducts] = useState([]);
+const [orders, setOrders] = useState<any[]>([]);
+const [orderItems, setOrderItems] = useState<any[]>([]);
+const [products, setProducts] = useState<any[]>([]);
 const [fullName, setFullName] = useState('');
 const [phone, setPhone] = useState('');
 const [address, setAddress] = useState('');
 const [totalPrice, setTotalPrice] = useState(0);
-const [orderDialog, setOrderDialog] = useState(false);
-const [deleteOrderDialog, setDeleteOrderDialog] = useState(false);
+const [orderDialog, setOrderDialog] = useState<boolean>(false);
+const [deleteOrderDialog, setDeleteOrderDialog] = useState<boolean>(false);
 const [deleteOrdersDialog, setDeleteOrdersDialog] = useState(false);
-const [order, setOrder] = useState(emptyOrder);
+const [order, setOrder] = useState<Order>(emptyOrder);
 const [filters, setFilters] = useState({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    global: { value: null as string | null, matchMode: FilterMatchMode.CONTAINS },
     created_at: { value: null, matchMode: FilterMatchMode.BETWEEN },
     status: { value: null, matchMode: FilterMatchMode.BETWEEN },
 });
-const [selectedOrders, setSelectedOrders] = useState([]);
-const [productDialog, setProductDialog] = useState(false);
+const [selectedOrders, setSelectedOrders] = useState<Order[]>([]);
+const [productDialog, setProductDialog] = useState<boolean>(false);
 const [selectedOrderItems, setSelectedOrderItems] = useState([]);
 const [submitted, setSubmitted] = useState(false);
 const [globalFilter, setGlobalFilter] = useState('');
-const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
-const toast = useRef(null);
+const [dateRange, setDateRange] = useState<{ startDate: Date | null; endDate: Date | null }>({ startDate: null, endDate: null });
+const toast = useRef<Toast>(null);
 const dt = useRef(null);
 const op2 = useRef<OverlayPanel>(null);
 
@@ -73,22 +76,54 @@ const statuses = [
     { label: 'تم الإلغاء', value: 'cancelled' }
 ];
 
+interface Order {
+    id: string;
+    fullname: string;
+    phone: string;
+    address: string;
+    status: string;
+    total_price: number;
+    created_at: string;
+    updated_at: string;
+    items: Array<{
+        product: { name: string };
+        quantity: number;
+    }>;
+}
+
+
+interface Product {
+    product_id: string;
+    name: string;
+    quantity: number;
+    price: number;
+}
+
+
+
+
+
+
+
+
 useEffect(() => {
     fetchdata();
 }, []);
-const filterByDateRange = (order) => {
+const filterByDateRange = (order: any) => {
     const { startDate, endDate } = dateRange;
     const orderDate = new Date(order.created_at);
 
-    if (startDate && endDate) {
+    if (startDate instanceof Date && endDate instanceof Date) {
         return orderDate >= startDate && orderDate <= endDate;
-    } else if (startDate) {
+    } else if (startDate instanceof Date) {
         return orderDate >= startDate;
-    } else if (endDate) {
+    } else if (endDate instanceof Date) {
         return orderDate <= endDate;
     }
     return true;
 };
+
+
 
 const fetchdata = async () => {
     const token = localStorage.getItem('token');
@@ -111,8 +146,8 @@ useEffect(() => {
         const config = { headers: { Authorization: `Bearer ${token}` } };
         try {
             const response = await axios.get(`http://127.0.0.1:8000/api/products`, config);
-            const availableProducts = response.data.filter(product => product.stock > 0);
-            const outOfStockProducts = response.data.filter(product => product.stock <= 0);
+            const availableProducts = response.data.filter((product:any) => product.stock > 0);
+            const outOfStockProducts = response.data.filter((product:any) => product.stock <= 0);
 
             setProducts(availableProducts); // Store available products in state
             if (outOfStockProducts.length > 0) {
@@ -143,16 +178,17 @@ const statusFilterTemplate = (options:any) => {
     );
 };
 
-const removeOrderItem = (index) => {
+const removeOrderItem = (index: number) => {
     const updatedItems = [...orderItems];
     updatedItems.splice(index, 1);
     setOrderItems(updatedItems);
     calculateTotalPrice(updatedItems);
 };
 
-const statusBodyTemplate = (rowData) => {
-    const onStatusChange = async (newStatus) => {
-        console.log(newStatus);
+
+const statusBodyTemplate = (rowData:any) => {
+    const onStatusChange = async (newStatus:any) => {
+
         try {
             const token = localStorage.getItem('token');
             const config = {
@@ -188,7 +224,7 @@ const statusBodyTemplate = (rowData) => {
         }
     };
 
-    const getSeverity = (status) => {
+    const getSeverity = (status:any) => {
         switch (status) {
             case 'new':
                 return 'info';
@@ -235,14 +271,21 @@ const statusBodyTemplate = (rowData) => {
     const _dateRange = { ...dateRange, [field]: value };
     setDateRange(_dateRange);
 }; */
-const onDateChange = (value, field, options) => {
-    const _dateRange = { ...options.value, [field]: value };  // Update either the start or end date
-    setDateRange(_dateRange); // Apply the updated filter
+const onDateChange = (value: Date | null | undefined, field: string, options: any) => {
+    const _dateRange = {
+        ...options.value,
+        [field]: value !== undefined ? value : null, // Explicitly convert undefined to null
+    };
+    setDateRange(_dateRange);
     options.filterCallback(_dateRange);
 };
 
+
+
+
+
 // Template for date range filter with Clear functionality
-const dateRangeFilterTemplate = (options) => {
+const dateRangeFilterTemplate = (options: { filterCallback: (arg0: null) => void; value: { startDate: any; endDate: any; }; }) => {
 const clearDateRange = () => {
     // Reset the date range and apply the clear filter
     setDateRange({ startDate: null, endDate: null });
@@ -279,7 +322,7 @@ return (
 };
 
 
-const formatDate = (value) => {
+const formatDate = (value: string | number | Date) => {
     const date = new Date(value);
     return date.toLocaleDateString('en-US', {
         year: 'numeric',
@@ -325,16 +368,19 @@ const hideDialog = () => {
     setOrderDialog(false);
 };
 const exportSelectedCSV = () => {
-    const csvData = [];
-    selectedOrders.forEach((order) => {
-        var itemS='';
+    const csvData: any[] = []; // Move this outside the function as you don't need to call `useState` here.
+
+    selectedOrders.forEach((order: Order) => {
+        let itemS = '';
+
         order.items.forEach((item) => {
-            itemS=itemS+' | '+item.product.name+' '+'['+item.quantity+']'
+            itemS = itemS + ' | ' + item.product.name + ' [' + item.quantity + ']';
         });
+
         csvData.push({
-            fullName:order.fullname,
-            phone:order.phone,
-            address:order.address,
+            fullName: order.fullname,
+            phone: order.phone,
+            address: order.address,
             id: order.id,
             status: order.status,
             total_price: order.total_price,
@@ -343,23 +389,24 @@ const exportSelectedCSV = () => {
         });
     });
 
+    // Perform the CSV export with the 'csvData'
     const csvHeaders = [
         { label: 'Order ID', key: 'id' },
-        { label: 'full Name', key: 'fullName' },
-        { label: 'phone', key: 'phone' },
-        { label: 'address', key: 'address' },
+        { label: 'Full Name', key: 'fullName' },
+        { label: 'Phone', key: 'phone' },
+        { label: 'Address', key: 'address' },
         { label: 'Status', key: 'status' },
         { label: 'Total Price', key: 'total_price' },
         { label: 'Created At', key: 'created_at' },
-        { label: 'Products', key: 'products' },
-
+        { label: 'Products', key: 'products' }
     ];
 
     const csv = convertArrayToCSV(csvData, csvHeaders);
     downloadCSV(csv, 'selected_orders_with_products.csv');
 };
 
-const editOrder = (order) => {
+
+const editOrder = (order:any) => {
     setOrder(order);
     setFullName(order.fullname); // Set the fullName
     setPhone(order.phone); // Set the phone
@@ -369,14 +416,14 @@ const editOrder = (order) => {
     setOrderDialog(true); // Open the dialog for editing
 };
 
-const convertArrayToCSV = (data, headers) => {
-    const headerRow = headers.map((header) => header.label).join(',');
-    const rows = data.map((row) => headers.map((header) => row[header.key]).join(','));
+const convertArrayToCSV = (data: any[], headers: any[]) => {
+    const headerRow = headers.map((header: { label: any; }) => header.label).join(',');
+    const rows = data.map((row: { [x: string]: any; }) => headers.map((header: { key: string | number; }) => row[header.key]).join(','));
 
     return [headerRow, ...rows].join('\n');
 };
 
-const downloadCSV = (csvContent, filename) => {
+const downloadCSV = (csvContent: BlobPart, filename: string) => {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
@@ -402,7 +449,7 @@ const saveOrder = async () => {
 
     // Ensure no duplicate products in the order
     const uniqueOrderItems = orderItems.reduce((acc, item) => {
-        const existingItemIndex = acc.findIndex(i => i.product_id === item.product_id);
+        const existingItemIndex = acc.findIndex((i: { product_id: any; }) => i.product_id === item.product_id);
 
         // If the product exists, update the quantity and price, otherwise add it as a new item
         if (existingItemIndex >= 0) {
@@ -479,12 +526,13 @@ const saveOrder = async () => {
 
 
 
+
 const addProductToOrder = () => {
     const newProduct = { product_id: '', quantity: 1, price: 0, product_name: '' };
     setOrderItems([...orderItems, newProduct]);
 };
 
-const updateOrderItem = (index, field, value) => {
+const updateOrderItem = (index: number, field: string, value: any) => {
     const updatedItems = [...orderItems];
 
     if (field === 'product_id') {
@@ -505,8 +553,8 @@ const updateOrderItem = (index, field, value) => {
 };
 
 
-const calculateTotalPrice = (items) => {
-    const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+const calculateTotalPrice = (items: any[]) => {
+    const total = items.reduce((acc: number, item: { price: number; quantity: number; }) => acc + item.price * item.quantity, 0);
     setTotalPrice(total.toFixed(2));
 };
 
@@ -520,7 +568,7 @@ const orderDialogFooter = (
 const confirmDeleteSelected = () => {
     setDeleteOrdersDialog(true);
 };
-const confirmDeleteSingleOrder = (order) => {
+const confirmDeleteSingleOrder = (order:any) => {
     setSelectedOrders([order]); // Set the single order to be deleted
     setDeleteOrdersDialog(true); // Open the confirmation dialog
 };
@@ -567,12 +615,12 @@ const deleteSelectedOrders = async () => {
 
 
 
-const showProductDialog = (rowData) => {
+const showProductDialog = (rowData: { items: React.SetStateAction<never[]>; }) => {
     setSelectedOrderItems(rowData.items);
     setProductDialog(true);
 };
 
-const actionBodyTemplate = (rowData) => {
+const actionBodyTemplate = (rowData: any) => {
     return (
         <>
             <Button icon="pi pi-eye" rounded severity="info"  className="p-1" onClick={() => showProductDialog(rowData)} />
@@ -584,21 +632,22 @@ const actionBodyTemplate = (rowData) => {
 
 const header = (
     <div className="flex justify-content-between">
-            <h5 className="m-2">إدارة الطلبات</h5>
-            <span className="p-input-icon-left">
-                <i className="pi pi-search" />
-                <InputText
+        <h5 className="m-2">إدارة الطلبات</h5>
+        <span className="p-input-icon-left">
+            <i className="pi pi-search" />
+            <InputText
                 type="search"
                 placeholder="بحث..."
                 onInput={(e) => {
-                    const value = e.target.value;
+                    const value = (e.target as HTMLInputElement).value;
                     setGlobalFilter(value);
                     setFilters({ ...filters, global: { value, matchMode: FilterMatchMode.CONTAINS } });
                 }}
             />
-            </span>
-        </div>
+        </span>
+    </div>
 );
+
 
 return (
     <div className="grid Crud-demo" dir='rtl'>
@@ -644,7 +693,7 @@ return (
 </DataTable>
 
 
-                <Dialog visible={orderDialog} style={{ width: '450px' }} header="تفاصيل الطلب" modal className="p-fluid" footer={orderDialogFooter} onHide={hideDialog} dir="rtl">
+                <Dialog visible={orderDialog} style={{ width: '450px' }} header="تفاصيل الطلب" modal className="p-fluid rtl-text" footer={orderDialogFooter} onHide={hideDialog} >
                 <div className='row-span-3 mb-2'>
                     <p>الاسم الكامل</p>
                     <InputText value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="الاسم الكامل" />
@@ -704,8 +753,8 @@ return (
                             </div>
                         </Dialog>
 
-                <Dialog visible={productDialog} style={{ width: '450px' }} header="Products" modal onHide={() => setProductDialog(false)} dir='rtl'>
-                    <DataTable value={selectedOrderItems} responsiveLayout="scroll">
+                <Dialog visible={productDialog} style={{ width: '450px' }} header="Products" modal onHide={() => setProductDialog(false)} className='rtl-text'>
+                    <DataTable   value={selectedOrderItems} responsiveLayout="scroll">
                         <Column field="product.name" header="اسم المنتج" sortable />
                         <Column field="quantity" header="كمية" sortable />
                         <Column field="price" header="السعر" body={(rowData) => {
