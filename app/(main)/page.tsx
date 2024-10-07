@@ -98,7 +98,7 @@ const Dashboard: React.FC = () => {
         }
     };
 
-    const formatCurrency = (value: number | null | undefined) => {
+    const formatCurrency = (value: number) => {
         return value?.toLocaleString('en-US', {
             style: 'currency',
             currency: 'USD',
