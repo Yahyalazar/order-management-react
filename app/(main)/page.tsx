@@ -75,7 +75,7 @@ const Dashboard = () => {
         }
     };
 
-    const formatCurrency = (value) => {
+    const formatCurrency = (value:any) => {
         return value?.toLocaleString('en-US', {
             style: 'currency',
             currency: 'USD',
