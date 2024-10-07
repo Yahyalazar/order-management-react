@@ -1,0 +1,45 @@
+@import './_variables';
+@import "./_mixins";
+@import "./_main";
+@import "./_topbar";
+@import "./_menu";
+@import "./_config";
+@import "./_content";
+@import "./_footer";
+@import "./_responsive";
+@import "./_utils";
+@import "./_typography";
+
+/* Color codes for statuses */
+.p-dropdown-info .p-dropdown-label {
+    color: #3178c6; /* Blue for 'info' */
+}
+
+.p-dropdown-success .p-dropdown-label {
+    color: #28a745; /* Green for 'success' */
+}
+
+.p-dropdown-warning .p-dropdown-label {
+    color: #ffc107; /* Yellow for 'warning' */
+}
+
+.p-dropdown-danger .p-dropdown-label {
+    color: #f1061d; /* Red for 'danger' */
+}
+
+/* Optionally, you can style the dropdown items when open */
+.p-tag-info {
+    background-color: #d1e7ff;
+}
+
+.p-tag-success {
+    background-color: #d4edda;
+}
+
+.p-tag-warning {
+    background-color: #fff3cd;
+}
+
+.p-tag-danger {
+    background-color: #f8d7da;
+}

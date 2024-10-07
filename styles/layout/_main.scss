@@ -1,0 +1,61 @@
+* {
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    font-family: var(--font-family);
+    color: var(--text-color);
+    background-color: var(--surface-ground);
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+    text-decoration: none;
+    color: var(--primary-color);
+}
+
+.layout-wrapper {
+    min-height: 100vh;
+}
+
+/* Color codes for statuses */
+.p-dropdown-info .p-dropdown-label {
+    color: #3178c6; /* Blue for 'info' */
+}
+
+.p-dropdown-success .p-dropdown-label {
+    color: #28a745; /* Green for 'success' */
+}
+
+.p-dropdown-warning .p-dropdown-label {
+    color: #ffc107; /* Yellow for 'warning' */
+}
+
+.p-dropdown-danger .p-dropdown-label {
+    color: #f6061e; /* Red for 'danger' */
+}
+
+/* Optionally, you can style the dropdown items when open */
+.p-tag-info {
+    background-color: #d1e7ff;
+}
+
+.p-tag-success {
+    background-color: #d4edda;
+}
+
+.p-tag-warning {
+    background-color: #fff3cd;
+}
+
+.p-tag-danger {
+    background-color: #f8d7da;
+}

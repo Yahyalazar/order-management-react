@@ -1,0 +1,55 @@
+.layout-main-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: space-between;
+    padding: 7rem 2rem 2rem 4rem;
+    transition: margin-left $transitionDuration;
+}
+
+.layout-main {
+    flex: 1 1 auto;
+}
+.logout-menu-item {
+    color: red !important; /* Custom style for the logout menu item */
+}
+
+.logout-menu-item .pi {
+    color: red !important; /* Ensure the icon is red too */
+}
+
+/* Color codes for statuses */
+.p-dropdown-info .p-dropdown-label {
+    color: #3178c6; /* Blue for 'info' */
+}
+
+.p-dropdown-success .p-dropdown-label {
+    color: #28a745; /* Green for 'success' */
+}
+
+.p-dropdown-warning .p-dropdown-label {
+    color: #ffc107; /* Yellow for 'warning' */
+}
+
+.p-dropdown-danger .p-dropdown-label {
+    color: #f60a21; /* Red for 'danger' */
+}
+
+/* Optionally, you can style the dropdown items when open */
+.p-tag-info {
+    background-color: #d1e7ff;
+}
+
+.p-tag-success {
+    background-color: #d4edda;
+}
+
+.p-tag-warning {
+    background-color: #fff3cd;
+}
+
+.p-tag-danger {
+    background-color: #f8d7da;
+}
+
+

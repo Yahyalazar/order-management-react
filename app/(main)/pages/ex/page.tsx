@@ -1,0 +1,886 @@
+/* eslint-disable @next/next/no-img-element */
+'use client';
+import axios from 'axios';
+import { Button } from 'primereact/button';
+import { Column } from 'primereact/column';
+import { DataTable } from 'primereact/datatable';
+import { Dialog } from 'primereact/dialog';
+import { OverlayPanel } from 'primereact/overlaypanel';
+import { FileUpload } from 'primereact/fileupload';
+import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
+import { InputText } from 'primereact/inputtext';
+import { InputTextarea } from 'primereact/inputtextarea';
+import { RadioButton, RadioButtonChangeEvent } from 'primereact/radiobutton';
+import { FilterMatchMode } from 'primereact/api';
+import { Dropdown } from 'primereact/dropdown';
+import { Rating } from 'primereact/rating';
+import { Toast } from 'primereact/toast';
+import { Toolbar } from 'primereact/toolbar';
+import { Tag } from 'primereact/tag';
+import { classNames } from 'primereact/utils';
+import React, { useEffect, useRef, useState } from 'react';
+import { ProductService } from '../../../../demo/service/ProductService';
+import { Demo } from '@/types';
+import { Calendar } from 'primereact/calendar';
+import { ColumnFilterElementTemplateOptions } from 'primereact/column';
+/* @todo استخدام 'as any' لأنواع هنا. سيتم الإصلاح في النسخة القادمة بسبب مشكلة نوع حدث onSelectionChange. */
+const OrderPage = () => {
+    let emptyOrder = {
+        id: '',
+        status: 'new',
+        total_price: 0,
+        created_at: '',
+        updated_at: '',
+        items: [],
+    };
+
+    const [orders, setOrders] = useState([]);
+    const [orderItems, setOrderItems] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [totalPrice, setTotalPrice] = useState(0);
+    const [orderDialog, setOrderDialog] = useState(false);
+    const [deleteOrderDialog, setDeleteOrderDialog] = useState(false);
+    const [deleteOrdersDialog, setDeleteOrdersDialog] = useState(false);
+    const [order, setOrder] = useState(emptyOrder);
+    const [selectedOrders, setSelectedOrders] = useState([]);
+    const [submitted, setSubmitted] = useState(false);
+    const [globalFilter, setGlobalFilter] = useState('');
+    const [filters, setFilters] = useState({
+        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        created_at: { value: { startDate: null, endDate: null }, matchMode: 'custom' },
+        status: { value: null, matchMode: FilterMatchMode.EQUALS },
+        total_price: { value: null, matchMode: 'custom' }, // If you apply custom price filtering
+    });
+
+    const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
+    const toast = useRef(null);
+    const dt = useRef(null);
+
+    useEffect(() => {
+        fetchdata()
+
+    }, []);
+
+
+    const fetchdata = async () => {
+        const token = localStorage.getItem('token');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        };
+        try {
+            const response = await axios.get(`http://127.0.0.1:8000/api/orders`, config);
+            setOrders(response.data);
+        } catch (error) {
+            console.error('Error fetching orders:', error);
+        }
+    };
+    // const dateFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
+    //     console.log(options);
+    //     return <Calendar value={options.created_at} onChange={(e) => options.filterCallback(e.value, options.index)} dateFormat="mm/dd/yy" placeholder="mm/dd/yyyy" mask="99/99/9999" />;
+    // };
+     // Template for date range filter
+
+      // Template for date range filter
+      const dateRangeFilterTemplate = (options) => {
+        return (
+            <div className="p-grid p-nogutter">
+                <div className="p-col-6">
+                    <Calendar
+                        value={options.value?.startDate || null}
+                        onChange={(e) => onDateChange(e.value, 'startDate', options)}
+                        placeholder="Start Date"
+                        dateFormat="yy-mm-dd"
+                        className="p-column-filter"
+                    />
+                </div>
+                <div className="p-col-6">
+                    <Calendar
+                        value={options.value?.endDate || null}
+                        onChange={(e) => onDateChange(e.value, 'endDate', options)}
+                        placeholder="End Date"
+                        dateFormat="yy-mm-dd"
+                        className="p-column-filter"
+                    />
+                </div>
+            </div>
+        );
+    };
+
+    const onDateChange = (value, field, options) => {
+        const _dateRange = { ...options.value, [field]: value };  // Update either the start or end date
+        options.filterCallback(_dateRange);  // Apply the updated filter
+    };
+
+
+
+
+
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            const token = localStorage.getItem('token');
+            const config = { headers: { Authorization: `Bearer ${token}` } };
+            try {
+                const response = await axios.get(`http://127.0.0.1:8000/api/products`, config);
+                const availableProducts = response.data.filter(product => product.stock > 0);
+                const outOfStockProducts = response.data.filter(product => product.stock <= 0);
+
+                setProducts(availableProducts); // Store available products in state
+                if (outOfStockProducts.length > 0) {
+                    toast.current?.show({
+                        severity: 'warn',
+                        summary: 'منتجات غير متوفرة',
+                        detail: `عدد ${outOfStockProducts.length} منتجات غير متوفرة في المخزون`,
+                        life: 10000
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching products:", error);
+            }
+        };
+        fetchProducts();
+    }, []);
+
+
+
+// Calculate total price of order
+const calculateTotalPrice = (items) => {
+    const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    setTotalPrice(total.toFixed(2));
+};
+
+const statuses = [
+    { label: 'جديد', value: 'new' },
+    { label: 'مؤهل', value: 'eligible' },
+    { label: 'تفاوض', value: 'negotiation' },
+    { label: 'تجديد', value: 'renewal' },
+    { label: 'مكتمل', value: 'completed' },
+    { label: 'ملغي', value: 'cancelled' }
+];
+
+
+
+
+    // Update order item fields dynamically
+const updateOrderItem = (index, field, value) => {
+    const updatedItems = [...orderItems];
+    updatedItems[index][field] = value;
+
+    // If the product is selected, get its price and name
+    if (field === 'product_id') {
+        const selectedProduct = products.find(product => product.id === value);
+        updatedItems[index].price = selectedProduct.price;
+        updatedItems[index].product_name = selectedProduct.name;
+    }
+
+    setOrderItems(updatedItems);
+    calculateTotalPrice(updatedItems);
+};
+
+
+/* const fetchdata=()=>{
+    ProductService.getProducts().then((data) => setOrders(data as any));
+
+} */
+
+    const filterByText = (value, filter) => {
+        if (typeof filter !== 'string' || typeof value !== 'string') return true;
+        return value.toLowerCase().includes(filter.trim().toLowerCase());
+    };
+
+
+    const formatCurrency = (value: number) => {
+        return value.toLocaleString('us-dollar', {
+            style: 'currency',
+            currency: 'USD'
+        });
+    };
+
+    const openNew = () => {
+        setOrder(emptyOrder);
+        setSubmitted(false);
+        setOrderDialog(true);
+    };
+
+    const hideDialog = () => {
+        setSubmitted(false);
+        setOrderDialog(false);
+    };
+
+    const editOrder = (order) => {
+        setOrder({ ...order });
+        setOrderDialog(true);
+    };
+
+    const hideDeleteOrderDialog = () => {
+        setDeleteOrderDialog(false);
+    };
+
+
+    const hideDeleteOrdersDialog = () => {
+        setDeleteOrdersDialog(false);
+    };
+
+    const confirmDeleteOrder = (order) => {
+        setOrder(order);  // Set the selected order to be deleted
+        setDeleteOrderDialog(true);  // Open the delete confirmation dialog
+    };
+
+
+    const saveOrder = async (event) => {
+        setSubmitted(true);
+
+        // Construct the order data
+        const orderData = {
+            status: order.status, // Example: 'new', 'negotiation', etc.
+            total_price: totalPrice, // Total price calculated from the items
+            items: orderItems.map(item => ({
+                product_id: item.product_id,
+                quantity: item.quantity,
+                price: item.price
+            }))
+        };
+
+        try {
+            const token = localStorage.getItem('token');
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+
+            let response;
+            if (order.id) {
+                // If the order exists, update it
+                response = await axios.put(`http://127.0.0.1:8000/api/orders/${order.id}`, orderData, config);
+            } else {
+                // Create a new order
+                response = await axios.post(`http://127.0.0.1:8000/api/orders`, orderData, config);
+            }
+
+            // After successfully saving the order
+            if (response.data) {
+                // Show the order details in the OverlayPanel after saving
+                setOrderItems(response.data.items); // Set the items to show in the OverlayPanel
+                op2.current?.toggle(event); // Make sure to pass the event here!
+            }
+
+            // Update the orders list
+            const updatedOrders = [...orders];
+            if (order.id) {
+                const index = updatedOrders.findIndex(o => o.id === order.id);
+                updatedOrders[index] = response.data;
+            } else {
+                updatedOrders.push(response.data);
+            }
+
+            setOrders(updatedOrders); // Update the state with the new order
+            setOrderDialog(false); // Close the dialog
+            setOrder(emptyOrder); // Reset the order form
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Order Created',
+                detail: 'Order has been created successfully',
+                life: 3000
+            });
+        } catch (error) {
+            console.error('Error saving order:', error.response?.data || error.message);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to create order',
+                life: 3000
+            });
+        }
+    };
+
+
+
+
+    const findIndexById = (id: string) => {
+        let index = -1;
+        for (let i = 0; i < (orders as any)?.length; i++) {
+            if ((orders as any)[i].id === id) {
+                index = i;
+                break;
+            }
+        }
+
+        return index;
+    };
+
+    const statusFilterTemplate = (options:any) => {
+        return (
+            <Dropdown
+                value={options.value}
+                options={statuses}
+                onChange={(e) => options.filterCallback(e.value)}
+                placeholder="اختر الحالة"
+                className="p-column-filter"
+                showClear
+            />
+        );
+    };
+
+    // const dateFilterTemplate = (options:any) => {
+    //     console.log(options)
+    //     return (
+    //         <div className="p-d-flex p-ai-center p-jc-between">
+    //             <Calendar
+    //                 value={options.value?.startDate}
+    //                 onChange={(e) => onDateFilterChange(e, 'startDate', options)}
+    //                 placeholder="من تاريخ"
+    //                 dateFormat="mm/dd/yy"
+    //                 showIcon
+    //                 className="p-mr-2"
+    //             />
+    //             <Calendar
+    //                 value={options.value?.endDate}
+    //                 onChange={(e) => onDateFilterChange(e, 'endDate', options)}
+    //                 placeholder="إلى تاريخ"
+    //                 dateFormat="mm/dd/yy"
+    //                 showIcon
+    //             />
+    //         </div>
+    //     );
+    // };
+
+    const filterByDateRange = (value, filter) => {
+        if (!value || !filter || typeof filter !== 'object') return true; // Add validation for filter being an object
+
+        const date = new Date(value);
+        const { startDate, endDate } = filter;
+
+        const isStartValid = startDate instanceof Date && !isNaN(startDate);
+        const isEndValid = endDate instanceof Date && !isNaN(endDate);
+
+        if (isStartValid && isEndValid) {
+            return date >= startDate && date <= endDate;
+        } else if (isStartValid) {
+            return date >= startDate;
+        } else if (isEndValid) {
+            return date <= endDate;
+        }
+
+        return true;
+    };
+
+
+    const createId = () => {
+        let id = '';
+        let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        for (let i = 0; i < 5; i++) {
+            id += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return id;
+    };
+
+    const exportCSV = () => {
+        console.log(dt);
+        dt.current?.exportCSV();
+    };
+
+    const confirmDeleteSelected = () => {
+        if (selectedOrders && selectedOrders.length > 0) {
+            setDeleteOrdersDialog(true);  // Open the confirmation dialog
+        } else {
+            toast.current.show({ severity: 'error', summary: 'خطأ', detail: 'لم يتم اختيار طلبات للحذف', life: 3000 });
+        }
+    };
+
+    const deleteSelectedOrders = async () => {
+        const token = localStorage.getItem('token');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        };
+
+        try {
+            // Send DELETE requests for each selected order
+            const deletePromises = selectedOrders.map(order =>
+                axios.delete(`http://127.0.0.1:8000/api/orders/${order.id}`, config)
+            );
+            await Promise.all(deletePromises);  // Wait for all DELETE requests to complete
+
+            // Filter out the deleted orders from the state
+            let _orders = orders.filter(val => !selectedOrders.includes(val));
+            setOrders(_orders);  // Update state with remaining orders
+
+            // Reset selection and close the dialog
+            setSelectedOrders([]);
+            setDeleteOrdersDialog(false);
+
+            // Show success message
+            toast.current.show({ severity: 'success', summary: 'تم بنجاح', detail: 'تم حذف الطلبات بنجاح', life: 3000 });
+        } catch (error) {
+            console.error('Error deleting selected orders:', error);
+            toast.current.show({ severity: 'error', summary: 'خطأ', detail: 'فشل في حذف الطلبات', life: 3000 });
+        }
+    };
+
+
+    const statusBodyTemplate = (rowData) => {
+        const onStatusChange = async (newStatus) => {
+            console.log(newStatus);
+            try {
+                const token = localStorage.getItem('token');
+                const config = {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                };
+
+                // Update the order status on the backend
+                await axios.put(`http://127.0.0.1:8000/api/orders/${rowData.id}`, { status: newStatus }, config);
+
+                // Update the local state
+                setOrders(prevOrders =>
+                    prevOrders.map(order =>
+                        order.id === rowData.id ? { ...order, status: newStatus } : order
+                    )
+                );
+
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'تم التحديث',
+                    detail: 'تم تحديث حالة الطلب بنجاح',
+                    life: 3000
+                });
+            } catch (error) {
+                console.error('Error updating status:', error);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'خطأ',
+                    detail: 'فشل في تحديث حالة الطلب',
+                    life: 3000
+                });
+            }
+        };
+
+        const getSeverity = (status) => {
+            switch (status) {
+                case 'new':
+                    return 'info';
+                case 'eligible':
+                    return 'success';
+                case 'negotiation':
+                    return 'warning';
+                case 'renewal':
+                    return 'danger';
+                case 'completed':
+                    return 'success';
+                case 'cancelled':
+                    return 'danger';
+                default:
+                    return null;
+            }
+        };
+
+        return (
+            <Dropdown
+                value={rowData.status}
+                options={statuses.map(status => ({
+                    label: status.label,  // Use Arabic label
+                    value: status.value,
+                    className: `p-tag p-tag-${getSeverity(status.value)}`  // Apply color coding
+                }))}
+                onChange={(e) => onStatusChange(e.value)}
+                disabled={rowData.status === 'cancelled'}  // Disable if status is cancelled
+                placeholder="اختر الحالة"
+                className={`p-dropdown-${getSeverity(rowData.status)}`}  // Apply color styling
+            />
+        );
+    };
+
+
+    const filterByPriceRange = (value: any, filter: { minPrice: number | null; maxPrice: number | null }): boolean => {
+        const price = parseFloat(value); // Ensure the value is a number
+        const { minPrice, maxPrice } = filter;
+
+        if (minPrice !== null && maxPrice !== null) {
+            return price >= minPrice && price <= maxPrice;
+        } else if (minPrice !== null) {
+            return price >= minPrice;
+        } else if (maxPrice !== null) {
+            return price <= maxPrice;
+        }
+        return true;
+    };
+    const onPriceChange = (value: number | null, field: string, options: any): void => {
+        const _priceRange = { ...options.value, [field]: value };  // Update either the minPrice or maxPrice
+        options.filterCallback(_priceRange);  // Apply the updated filter
+    };
+    const priceRangeFilterTemplate = (options: ColumnFilterElementTemplateOptions): JSX.Element => {
+        return (
+            <div className="p-grid p-nogutter">
+                <div className="p-col-6">
+                    <InputNumber
+                        value={options.value?.minPrice || null}
+                        onValueChange={(e) => onPriceChange(e.value, 'minPrice', options)}
+                        placeholder="Min Price"
+                        className="p-column-filter"
+                    />
+                </div>
+                <div className="p-col-6">
+                    <InputNumber
+                        value={options.value?.maxPrice || null}
+                        onValueChange={(e) => onPriceChange(e.value, 'maxPrice', options)}
+                        placeholder="Max Price"
+                        className="p-column-filter"
+                    />
+                </div>
+            </div>
+        );
+    };
+
+    const priceBodyTemplate = (rowData:any) => {
+        const price = parseFloat(rowData.total_price);
+        return isNaN(price) ? 'N/A' : `${price.toFixed(2)}$`; // Arabic direction with currency
+    };
+
+    const formatDate = (value) => {
+        const date = new Date(value);  // Ensure the value is converted to a Date object
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        });
+    };
+
+    const onSelectionChange = (e: any): void => {
+        setSelectedOrders(e.value as Demo.Product);
+    };
+
+    const onProductSelect = (event: DataTableSelectEvent) => {
+        op2.current?.hide();
+        toast.current?.show({
+            severity: 'info',
+            summary: 'Product Selected',
+            detail: event.data.name,
+            life: 3000
+        });
+    };
+    /* const statusFilterTemplate = (options) => {
+        return (
+            <Dropdown
+                value={options.value}
+                options={statuses}
+                onChange={(e) => options.filterCallback(e.value)}
+                placeholder="اختر الحالة"
+                className="p-column-filter"
+                showClear
+            />
+        );
+    }; */
+/*
+    const onCategoryChange = (e: RadioButtonChangeEvent) => {
+        let _product = { ...product };
+        _product['category'] = e.value;
+        setProduct(_product);
+    }; */
+
+   /*  const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
+        const val = (e.target && e.target.value) || '';
+        let _product = { ...product };
+        _product[`${name}`] = val;
+
+        setProduct(_product);
+    }; */
+
+    /* const onInputNumberChange = (e: InputNumberValueChangeEvent, name: string) => {
+        const val = e.value || 0;
+        let _product = { ...order };
+        _product[`${name}`] = val;
+
+        setProduct(_product);
+    }; */
+    const op2 = useRef<OverlayPanel>(null);
+    const toggleDataTable = (event: ButtonEvent) => {
+        op2.current?.toggle(event);
+    };
+
+
+    const leftToolbarTemplate = () => {
+        return (
+            <React.Fragment>
+                <div className="my-2">
+                    <Button label="جديد" icon="pi pi-plus" severity="success" className=" ml-2" onClick={openNew} />
+                    <Button label="حذف" icon="pi pi-trash" severity="danger" className=" mr-2" onClick={confirmDeleteSelected} disabled={!selectedOrders || !(selectedOrders as any).length} />
+                </div>
+            </React.Fragment>
+        );
+    };
+
+    const rightToolbarTemplate = () => {
+        return (
+            <React.Fragment>
+                <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} chooseLabel="استيراد" className="ml-2 inline-block" />
+                <Button label="تصدير" icon="pi pi-upload" severity="help" onClick={exportCSV} className="mr-2 inline-block"/>
+            </React.Fragment>
+        );
+    };
+
+    const codeBodyTemplate = (rowData: Demo.Product) => {
+        return (
+            <>
+                <span className="p-column-title">الرمز</span>
+                {rowData.id}
+            </>
+        );
+    };
+    const deleteOrder = async () => {
+        const token = localStorage.getItem('token');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        };
+
+        try {
+            await axios.delete(`http://127.0.0.1:8000/api/orders/${order.id}`, config);
+            let _orders = orders.filter((val) => val.id !== order.id);  // Filter out the deleted order
+            setOrders(_orders);  // Update the orders list
+            setDeleteOrderDialog(false);  // Close the delete confirmation dialog
+            setOrder(emptyOrder);  // Reset the order state
+            toast.current.show({ severity: 'success', summary: 'تم بنجاح', detail: 'تم حذف الطلب', life: 3000 });
+        } catch (error) {
+            console.error('Error deleting order:', error);
+            toast.current.show({ severity: 'error', summary: 'خطأ', detail: 'فشل في حذف الطلب', life: 3000 });
+        }
+    };
+
+
+
+    const nameBodyTemplate = (rowData:any) => {
+        const onToggleDataTable = (event) => {
+            // Prepare order items with calculated total price (price * quantity)
+            const itemsWithTotalPrice = rowData.items.map(item => ({
+                product_name: item.product.name,
+                quantity: item.quantity,
+                price_total: (item.quantity * item.price).toFixed(2) // Calculate total price for each item
+            }));
+            setOrderItems(itemsWithTotalPrice);
+
+            // Open the OverlayPanel
+            op2.current?.toggle(event);
+        };
+
+        return (
+            <>
+            <Button type="button" label="طلب" onClick={onToggleDataTable} outlined />
+            <OverlayPanel ref={op2} appendTo={typeof window !== 'undefined' ? document.body : null} showCloseIcon id="overlay_panel" style={{ width: '450px' }}>
+                <DataTable value={orderItems} responsiveLayout="scroll" paginator rows={5}>
+                    <Column field="product_name" header="الاسم" sortable />
+                    <Column field="quantity" header="الكمية" sortable />
+                    <Column field="price_total" header="المجموع" body={(rowData) => `${rowData.price_total}$`} sortable />
+                </DataTable>
+            </OverlayPanel>
+        </>
+        );
+    };
+
+
+/*     const priceBodyTemplate = (rowData: Demo.Product) => {
+        return (
+            <>
+                <span className="p-column-title">السعر</span>
+                {formatCurrency(rowData.price as number)}
+            </>
+        );
+    }; */
+
+  /*   const categoryBodyTemplate = (rowData: Demo.Product) => {
+        return (
+            <>
+                <span className="p-column-title">الفئة</span>
+                {rowData.category}
+            </>
+        );
+    }; */
+
+   /*  const ratingBodyTemplate = (rowData: Demo.Product) => {
+        return (
+            <>
+                <span className="p-column-title">التقييمات</span>
+                <Rating value={rowData.rating} readOnly cancel={false} />
+            </>
+        );
+    }; */
+
+    /* const statusBodyTemplate = (rowData: Demo.Product) => {
+        return (
+            <>
+                <span className="p-column-title">الحالة</span>
+                <span className={`product-badge status-${rowData.inventoryStatus?.toLowerCase()}`}>{rowData.inventoryStatus}</span>
+            </>
+        );
+    }; */
+
+    const actionBodyTemplate = (rowData: Demo.Product) => {
+        return (
+            <>
+                <Button icon="pi pi-pencil" rounded severity="success" className="ml-2" onClick={() => editOrder(rowData)} />
+                <Button icon="pi pi-trash" rounded severity="warning" onClick={() => confirmDeleteOrder(rowData)} />
+            </>
+        );
+    };
+
+
+    const header = (
+        <div className="flex justify-content-between">
+            <h5 className="m-2">إدارة الطلبات</h5>
+            <span className="p-input-icon-left">
+                <i className="pi pi-search" />
+                <InputText
+                    type="search"
+                    placeholder="بحث..."
+                    onInput={(e) => {
+                        const value = e.target.value;
+                        setGlobalFilter(value);
+                        setFilters({ ...filters, global: { value, matchMode: FilterMatchMode.CONTAINS },
+                         });
+                    }}
+                />
+            </span>
+        </div>
+    );
+
+    const orderDialogFooter = (
+        <>
+            <Button label="إلغاء" icon="pi pi-times" text onClick={hideDialog} />
+            <Button label="حفظ" icon="pi pi-check" text onClick={saveOrder} />
+        </>
+    );
+
+    const deleteOrderDialogFooter = (
+        <>
+            <Button label="لا" icon="pi pi-times" text onClick={hideDeleteOrderDialog} />
+            <Button label="نعم" icon="pi pi-check" text onClick={deleteOrder} />
+        </>
+    );
+
+
+    const deleteOrdersDialogFooter = (
+        <>
+            <Button label="لا" icon="pi pi-times" text onClick={hideDeleteOrdersDialog} />
+            <Button label="نعم" icon="pi pi-check" text onClick={deleteSelectedOrders} />
+        </>
+    );
+
+    const onDateFilterChange = (e:any, field:any, options:any) => {
+        const value = e.value;
+        const filters = options.filters || { startDate: null, endDate: null };
+
+        filters[field] = value; // Update either startDate or endDate
+        options.filterCallback(filters);
+    };
+
+    const addProductToOrder = () => {
+        const newProduct = { product_id: '', quantity: 1, price: 0, product_name: '' };
+        setOrderItems([...orderItems, newProduct]);
+    };
+
+    return (
+        <div className="grid Crud-demo">
+            <div className="col-12">
+                <div className="card">
+                    <Toast ref={toast} />
+                    <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
+
+    <DataTable
+    ref={dt}
+    value={orders}
+    selection={selectedOrders}
+    onSelectionChange={(e) => setSelectedOrders(e.value)}
+    dataKey="id"
+    paginator
+    rows={10}
+    rowsPerPageOptions={[5, 10, 25]}
+    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+    currentPageReportTemplate="عرض {first} إلى {last} من {totalRecords} طلبات"
+    globalFilter={typeof globalFilter === 'string' ? globalFilter : ''}
+    filters={filters}
+    header={header}
+    emptyMessage="لا توجد طلبات."
+    responsiveLayout="scroll"
+>
+    <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
+    <Column field="id" header="معرف الطلب" body={codeBodyTemplate} sortable></Column>
+    <Column field="name" header="المنتجات" body={nameBodyTemplate} sortable></Column>
+    <Column field="status" header="الحالة" body={statusBodyTemplate} filter filterElement={statusFilterTemplate} sortable></Column>
+    <Column field="total_price" header="السعر الاجمالي"
+    body={priceBodyTemplate}
+        sortable
+        filter
+        filterFunction={filterByPriceRange}  // Apply the custom price filter
+        filterElement={priceRangeFilterTemplate}
+    ></Column>
+    <Column
+    field="created_at"
+    header="تاريخ الإنشاء"
+    filter
+    filterFunction={filterByDateRange}  // Apply the custom date filter logic
+    filterElement={dateRangeFilterTemplate}  // Use the custom date range filter UI
+    body={(rowData) => formatDate(rowData.created_at)}  // Format the date for display
+    sortable
+/>
+
+
+    <Column body={actionBodyTemplate}></Column>
+</DataTable>
+
+
+
+
+
+<Dialog visible={orderDialog} style={{ width: '450px' }} header="تفاصيل الطلب" modal className="p-fluid" footer={orderDialogFooter} onHide={hideDialog}>
+{orderItems.map((item, index) => (
+                            <div key={index} className="field grid">
+                                <div className="col-6">
+                                <Dropdown
+                                    value={item.product_id}
+                                    options={products.map(product => ({ label: product.name, value: product.id }))}
+                                    onChange={(e) => updateOrderItem(index, 'product_id', e.value)}
+                                    placeholder="Select Product"
+                                />
+                                </div>
+                                <div className="col-3">
+                                    <InputNumber
+                                        value={item.quantity}
+                                        onValueChange={(e) => updateOrderItem(index, 'quantity', e.value)}
+                                        min={1}
+                                        placeholder="Quantity"
+                                    />
+                                </div>
+                                <div className="col-3">
+                                    <span>{(item.quantity * item.price).toFixed(2)}$</span>
+                                </div>
+                            </div>
+                        ))}
+
+                        <div className="field">
+                            <Button label="Add Product" icon="pi pi-plus" onClick={addProductToOrder} className="p-button-success" />
+                        </div>
+
+                        <div className="field">
+                            <label htmlFor="total_price">Total Price</label>
+                            <span>{totalPrice}$</span>
+                        </div>
+                    </Dialog>
+
+                    <Dialog visible={deleteOrdersDialog} style={{ width: '450px' }} header="تأكيد" modal footer={deleteOrdersDialogFooter} onHide={hideDeleteOrdersDialog}>
+    <div className="confirmation-content">
+        <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+        <span>هل أنت متأكد أنك تريد حذف الطلبات المحددة؟</span>
+    </div>
+</Dialog>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default OrderPage;
