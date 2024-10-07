@@ -7,28 +7,55 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Cairo } from '@next/font/google';
 
+// Type for Product
+interface Product {
+    id: number;
+    name: string;
+    price: number;
+    stock: number;
+}
+
+// Type for Order Item
+interface OrderItem {
+    product: Product;
+    quantity: number;
+}
+
+// Type for Order
+interface Order {
+    id: number;
+    total_price: number;
+    status: string;
+    created_at: string;
+    items: OrderItem[];
+}
+
+// Type for API response
+interface ApiResponse<T> {
+    data: T;
+}
+
+// Adding Cairo font
 const cairo = Cairo({
     subsets: ['latin'],
     weight: ['600', '800'], // Use the weights you need
 });
 
-const Dashboard = () => {
-    const [products, setProducts] = useState([]);
-    const [orders, setOrders] = useState([]);
-    const [usersCount, setUsersCount] = useState(0);
-    const [completedOrdersTotal, setCompletedOrdersTotal] = useState(0);
-    const [totalProducts, setTotalProducts] = useState(0); // For total products card
-    const [selectedProduct, setSelectedProduct] = useState(null); // For viewing product details
-    const [selectedOrder, setSelectedOrder] = useState(null); // For viewing order details
-    const [productDialogVisible, setProductDialogVisible] = useState(false); // Show/hide product dialog
-    const [orderDialogVisible, setOrderDialogVisible] = useState(false); // Show/hide order dialog
-    const [totalOrder, setTotalOrder] = useState('0'); // Show/hide order dialog
+const Dashboard: React.FC = () => {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [usersCount, setUsersCount] = useState<number>(0);
+    const [completedOrdersTotal, setCompletedOrdersTotal] = useState<number>(0);
+    const [totalProducts, setTotalProducts] = useState<number>(0);
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [productDialogVisible, setProductDialogVisible] = useState<boolean>(false);
+    const [orderDialogVisible, setOrderDialogVisible] = useState<boolean>(false);
+    const [totalOrder, setTotalOrder] = useState<number>(0);
 
     useEffect(() => {
         fetchData();
     }, []);
-
-    console.log(selectedProduct);
 
     const fetchData = async () => {
         const token = localStorage.getItem('token');
@@ -38,59 +65,52 @@ const Dashboard = () => {
             },
         };
 
-        try{
-
-            const total = await axios.get('http://127.0.0.1:8000/api/countOrder', config);
-            setTotalOrder(total.data);
-
-        }catch(error){
-            console.error('Error fetching data:', error);
+        try {
+            const totalResponse: ApiResponse<number> = await axios.get('http://127.0.0.1:8000/api/countOrder', config);
+            setTotalOrder(totalResponse.data);
+        } catch (error) {
+            console.error('Error fetching total order:', error);
         }
 
         try {
             // Fetch Products
-            const productsResponse = await axios.get('http://127.0.0.1:8000/api/products', config);
+            const productsResponse: ApiResponse<Product[]> = await axios.get('http://127.0.0.1:8000/api/products', config);
             const productsData = productsResponse.data;
-            setProducts(productsData.slice(0, 10)); // Display the last 10 products
-            setTotalProducts(productsData.length); // Set total products count
+            setProducts(productsData.slice(0, 10));
+            setTotalProducts(productsData.length);
 
             // Fetch Orders
-            const ordersResponse = await axios.get('http://127.0.0.1:8000/api/orders', config);
-
-
+            const ordersResponse: ApiResponse<Order[]> = await axios.get('http://127.0.0.1:8000/api/orders', config);
             const ordersData = ordersResponse.data;
-            setOrders(ordersData.slice(0, 10)); // Display the last 10 orders
+            setOrders(ordersData.slice(0, 10));
 
             // Calculate total price of completed orders
             const totalCompletedPrice = ordersData
-                .filter((order:any) => order.status === 'completed')
-                .reduce((acc:any, order:any) => acc + order.total_price, 0);
+                .filter((order) => order.status === 'completed')
+                .reduce((acc, order) => acc + order.total_price, 0);
             setCompletedOrdersTotal(totalCompletedPrice);
 
             // Fetch Users
-            const usersResponse = await axios.get('http://127.0.0.1:8000/api/users', config);
-            setUsersCount(usersResponse.data.length); // Total number of users
+            const usersResponse: ApiResponse<{ id: number }[]> = await axios.get('http://127.0.0.1:8000/api/users', config);
+            setUsersCount(usersResponse.data.length);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
     };
 
-    const formatCurrency = (value: number | null | undefined) => {
+    const formatCurrency = (value: number) => {
         return value?.toLocaleString('en-US', {
             style: 'currency',
             currency: 'USD',
         });
     };
 
-    // Open product details dialog
-    const viewProductDetails = (product) => {
+    const viewProductDetails = (product: Product) => {
         setSelectedProduct(product);
-        console.log(selectedProduct)
         setProductDialogVisible(true);
     };
 
-    // Open order details dialog
-    const viewOrderDetails = (order) => {
+    const viewOrderDetails = (order: Order) => {
         setSelectedOrder(order);
         setOrderDialogVisible(true);
     };
@@ -175,8 +195,7 @@ const Dashboard = () => {
                             <ul>
                                 {selectedOrder.items?.map((item) => (
                                     <li key={item.product.id}><h6>اسم المنتج: {item.product.name}</h6> - الكمية: {item.quantity}</li>
-                                )
-                                )}
+                                ))}
                             </ul>
                         </div>
                     )}
@@ -188,11 +207,11 @@ const Dashboard = () => {
                         <h5>الطلبات الأخيرة</h5>
                         <DataTable value={orders} rows={5} paginator responsiveLayout="scroll">
                             <Column field="id" header="الرمز" sortable style={{ width: '10%' }} />
-                            <Column field="total_price" header="السعر" sortable style={{ width: '10%' }} body={(data) => formatCurrency(data.total_price)} />
+                            <Column field="total_price" header="السعر" sortable style={{ width: '10%' }} body={(data: Order) => formatCurrency(data.total_price)} />
                             <Column
                                 header="عرض"
                                 style={{ width: '15%' }}
-                                body={(rowData) => (
+                                body={(rowData: Order) => (
                                     <Button icon="pi pi-search" text onClick={() => viewOrderDetails(rowData)} />
                                 )}
                             />
@@ -206,11 +225,11 @@ const Dashboard = () => {
                         <h5>المنتجات الأخيرة</h5>
                         <DataTable value={products} rows={5} paginator responsiveLayout="scroll">
                             <Column field="name" header="الاسم" sortable style={{ width: '10%' }} />
-                            <Column field="price" header="السعر" sortable style={{ width: '10%' }} body={(data) => formatCurrency(data.price)} />
+                            <Column field="price" header="السعر" sortable style={{ width: '10%' }} body={(data: Product) => formatCurrency(data.price)} />
                             <Column
                                 header="عرض"
                                 style={{ width: '10%' }}
-                                body={(rowData) => (
+                                body={(rowData: Product) => (
                                     <Button icon="pi pi-search" text onClick={() => viewProductDetails(rowData)} />
                                 )}
                             />
