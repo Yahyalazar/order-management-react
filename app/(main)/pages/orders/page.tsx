@@ -26,6 +26,7 @@ import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import './test5.css';
 
 const OrderPage = () => {
+    const apiUrl = 'https://api.zidoo.online/api';
     const emptyOrder: Order = {
         id: '',
         fullname: '',
@@ -133,7 +134,7 @@ const fetchdata = async () => {
         },
     };
     try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/orders`, config);
+        const response = await axios.get(`${apiUrl}/orders`, config);
         setOrders(response.data);
     } catch (error) {
         console.error('Error fetching orders:', error);
@@ -145,7 +146,7 @@ useEffect(() => {
         const token = localStorage.getItem('token');
         const config = { headers: { Authorization: `Bearer ${token}` } };
         try {
-            const response = await axios.get(`http://127.0.0.1:8000/api/products`, config);
+            const response = await axios.get(`${apiUrl}/products`, config);
             const availableProducts = response.data.filter((product:any) => product.stock > 0);
             const outOfStockProducts = response.data.filter((product:any) => product.stock <= 0);
 
@@ -198,7 +199,7 @@ const statusBodyTemplate = (rowData:any) => {
             };
 
             // Update the order status on the backend
-            await axios.put(`http://127.0.0.1:8000/api/orders/${rowData.id}`, { status: newStatus }, config);
+            await axios.put(`${apiUrl}/orders/${rowData.id}`, { status: newStatus }, config);
 
             // Update the local state
             setOrders(prevOrders =>
@@ -484,10 +485,10 @@ const saveOrder = async () => {
         let response;
         if (order.id) {
             // Update existing order
-            response = await axios.put(`http://127.0.0.1:8000/api/orders/${order.id}`, orderData, config);
+            response = await axios.put(`${apiUrl}/orders/${order.id}`, orderData, config);
         } else {
             // Create new order
-            response = await axios.post(`http://127.0.0.1:8000/api/orders`, orderData, config);
+            response = await axios.post(`${apiUrl}/orders`, orderData, config);
         }
 
         if (response.data) {
@@ -586,7 +587,7 @@ const deleteSelectedOrders = async () => {
         // Loop through each selected order and send delete requests
         if (selectedOrders && selectedOrders.length > 0) {
             for (const selectedOrder of selectedOrders) {
-                await axios.delete(`http://127.0.0.1:8000/api/orders/${selectedOrder.id}`, config);
+                await axios.delete(`${apiUrl}/orders/${selectedOrder.id}`, config);
             }
 
             // Remove the deleted orders from the frontend state

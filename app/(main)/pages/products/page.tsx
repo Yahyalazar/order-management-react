@@ -21,6 +21,7 @@ import axios from 'axios';
 import { config } from 'process';
 /* @todo استخدام 'as any' لأنواع هنا. سيتم الإصلاح في النسخة القادمة بسبب مشكلة نوع حدث onSelectionChange. */
 const Crud = () => {
+    const apiUrl = 'https://api.zidoo.online/api';
     let emptyProduct: Demo.Product = {
     id: '',
     name: '',
@@ -129,7 +130,7 @@ const Crud = () => {
                     fetchdata();
                     toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Product Updated', life: 3000 });
                 } else {
-                    const response = await axios.post('http://127.0.0.1:8000/api/products', {
+                    const response = await axios.post('${apiUrl}/products', {
                         name: _product.name,
                         price: _product.price,
                         stock: _product.stock,
@@ -181,7 +182,7 @@ const Crud = () => {
         };
 
         try {
-            await axios.delete(`http://127.0.0.1:8000/api/products/${product.id}`, config);
+            await axios.delete(`${apiUrl}/products/${product.id}`, config);
 
             let _products = (products as any)?.filter((val: any) => val.id !== product.id);
             setProducts(_products);
@@ -252,7 +253,7 @@ const Crud = () => {
         };
         try {
             await Promise.all(
-                selectedProducts?.map((product:any) => axios.delete(`http://127.0.0.1:8000/api/products/${product.id}`, config))
+                selectedProducts?.map((product:any) => axios.delete(`${apiUrl}/products/${product.id}`, config))
             );
             setProducts(products.filter((val:any) => !selectedProducts?.includes(val)));
             setDeleteProductsDialog(false);
@@ -292,7 +293,7 @@ const Crud = () => {
 
         setProduct(_product);
     };
-    
+
     const leftToolbarTemplate = () => {
         return (
             <React.Fragment>

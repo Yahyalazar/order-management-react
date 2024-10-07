@@ -16,6 +16,7 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
 const Crud = () => {
+    const apiUrl = 'https://api.zidoo.online/api';
     let emptyUser: User = {
         id: '',
         name: '',
@@ -72,7 +73,7 @@ const Crud = () => {
                 }
             };
 
-            const response = await axios.get('http://127.0.0.1:8000/api/users', config);
+            const response = await axios.get('${apiUrl}/users', config);
             setUsers(response.data);
         } catch (error) {
             console.error("Error fetching users: ", error);
@@ -109,12 +110,12 @@ const Crud = () => {
                     const index = findIndexById(user.id);
                     _users[index] = _user;
 
-                    await axios.put(`http://127.0.0.1:8000/api/users/${user.id}`, _user, config);
+                    await axios.put(`${apiUrl}/users/${user.id}`, _user, config);
                     fetchUsers();
                     toast.current?.show({ severity: 'success', summary: 'نجاح', detail: 'تم تحديث المستخدم', life: 3000 });
                 } else {
                     // Create new user
-                    const response = await axios.post(`http://127.0.0.1:8000/api/users`, _user, config);
+                    const response = await axios.post(`${apiUrl}/users`, _user, config);
                     _user.id = response.data.id;
                     _users.push(_user);
                     toast.current?.show({ severity: 'success', summary: 'نجاح', detail: 'تم إنشاء المستخدم', life: 3000 });
@@ -143,7 +144,7 @@ const Crud = () => {
         };
 
         try {
-            await axios.delete(`http://127.0.0.1:8000/api/users/${user.id}`, config);
+            await axios.delete(`${apiUrl}/users/${user.id}`, config);
             if (users) {
             let _users = users.filter((val: any) => val.id !== user.id);
             setUsers(_users);

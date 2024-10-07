@@ -10,7 +10,7 @@ import { Password } from 'primereact/password';
 import { InputText } from 'primereact/inputtext';
 import { classNames } from 'primereact/utils';
 
-
+const apiUrl = 'https://api.zidoo.online/api';
 const LoginPage = () => {
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
@@ -18,6 +18,7 @@ const LoginPage = () => {
     const router = useRouter();
 
     useEffect(() => {
+        console.log(apiUrl);
         // Check if user is already authenticated
         const token = localStorage.getItem('token');
         if (token) {
@@ -29,7 +30,7 @@ const LoginPage = () => {
     const handleLogin = async () => {
         try {
            // await fetchCsrfToken();
-            const response = await axios.post(`http://127.0.0.1:8000/api/login`, {
+            const response = await axios.post(`${apiUrl}/login`, {
                 email,
                 password,
             });
