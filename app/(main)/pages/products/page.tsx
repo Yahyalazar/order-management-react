@@ -398,11 +398,12 @@ const Crud = () => {
     };
 
     const header = (
-        <div className="flex justify-content-between">
+        <div className="flex justify-content-between md:flex-col sm:flex-col">
             <h5 className="m-2">إدارة المنتجات</h5>
             <span className="p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText
+
                     type="search"
                     placeholder="Search..."
                     onInput={(e) => {

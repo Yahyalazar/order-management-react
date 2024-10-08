@@ -40,6 +40,7 @@ const Crud = () => {
 
 
 
+
     const [users, setUsers] = useState<User[]>([]);
     const [userDialog, setUserDialog] = useState(false);
     const [deleteUserDialog, setDeleteUserDialog] = useState(false);
@@ -92,45 +93,44 @@ const Crud = () => {
 
     const saveUser = async () => {
         setSubmitted(true);
-        const token = localStorage.getItem('token');
-        const config = {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        };
 
-        // Ensure fields are not undefined before calling trim()
-        if ((user.name?.trim() || '') && (user.email?.trim() || '') && (user.password?.trim() || '')) {
-            let _users = [...(users || [])];
+        if (user.name.trim() && user.email.trim() && user.password.trim()) {
+            const token = localStorage.getItem('token');
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+
+            let _users = [...users];
             let _user = { ...user };
 
             try {
                 if (user.id) {
                     // Update existing user
+                    const response = await axios.put(`${apiUrl}/users/${user.id}`, _user, config);
                     const index = findIndexById(user.id);
-                    _users[index] = _user;
-
-                    await axios.put(`${apiUrl}/users/${user.id}`, _user, config);
-                    fetchUsers();
-                    toast.current?.show({ severity: 'success', summary: 'نجاح', detail: 'تم تحديث المستخدم', life: 3000 });
+                    _users[index] = response.data;
+                    toast.current?.show({ severity: 'success', summary: 'Success', detail: 'User Updated', life: 3000 });
                 } else {
                     // Create new user
                     const response = await axios.post(`${apiUrl}/users`, _user, config);
                     _user.id = response.data.id;
                     _users.push(_user);
-                    toast.current?.show({ severity: 'success', summary: 'نجاح', detail: 'تم إنشاء المستخدم', life: 3000 });
+                    toast.current?.show({ severity: 'success', summary: 'Success', detail: 'User Created', life: 3000 });
                 }
+
                 setUsers(_users);
                 setUserDialog(false);
                 setUser(emptyUser);
             } catch (error) {
-                console.error("Error saving user: ", error);
-                toast.current?.show({ severity: 'error', summary: 'خطأ', detail: 'فشل في حفظ المستخدم', life: 3000 });
+                toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Failed to Save User', life: 3000 });
             }
         } else {
-            toast.current?.show({ severity: 'error', summary: 'خطأ', detail: 'الرجاء ملء جميع الحقول المطلوبة', life: 3000 });
+            toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Please fill in all required fields', life: 3000 });
         }
     };
+
 
 
 
@@ -231,9 +231,13 @@ const Crud = () => {
         </>
     );
 
-    function openNew(event: React.MouseEvent<HTMLButtonElement>): void {
-        throw new Error('Function not implemented.');
-    }
+    const openNew = () => {
+        setUser(emptyUser);  // Reset the user state to the empty object, ready for a new user to be created
+        setSubmitted(false);  // Reset the submitted flag
+        setUserDialog(true);  // Open the user dialog (form)
+    };
+
+
 
     return (
         <div className="grid crud-demo">

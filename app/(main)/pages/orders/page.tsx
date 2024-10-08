@@ -71,7 +71,6 @@ const statuses = [
     { label: 'تم الشحن', value: 'Shipped' },
     { label: 'مؤجل', value: 'postponed' },
     { label: 'مرتجع', value: 'returned' },
-    { label: 'تم الدفع', value: 'paid' },
     { label: 'تم التسليم', value: 'delivered' },
     { label: 'مستبدل', value: 'replaced' },
     { label: 'مكتمل', value: 'completed' },
@@ -136,7 +135,8 @@ const fetchdata = async () => {
     };
     try {
         const response = await axios.get(`${apiUrl}/orders`, config);
-        setOrders(response.data);
+        const sortedOrders = response.data.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        setOrders(sortedOrders);
     } catch (error) {
         console.error('Error fetching orders:', error);
     }
@@ -150,7 +150,7 @@ useEffect(() => {
             const response = await axios.get(`${apiUrl}/products`, config);
             const availableProducts = response.data.filter((product:any) => product.stock > 0);
             const outOfStockProducts = response.data.filter((product:any) => product.stock <= 0);
-
+console.log(availableProducts);
             setProducts(availableProducts); // Store available products in state
             if (outOfStockProducts.length > 0) {
                 toast.current?.show({
@@ -243,8 +243,6 @@ const statusBodyTemplate = (rowData:any) => {
             case 'delivered':
                 return 'success';
             case 'completed':
-                return 'success';
-            case 'paid':
                 return 'success';
             case 'cancelled':
                 return 'danger';
