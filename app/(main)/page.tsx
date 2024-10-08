@@ -40,7 +40,7 @@ const cairo = Cairo({
     subsets: ['latin'],
     weight: ['600', '800'], // Use the weights you need
 });
-const apiUrl = 'https://api.zidoo.online/api';
+
 const Dashboard: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [orders, setOrders] = useState<Order[]>([]);
@@ -56,7 +56,7 @@ const Dashboard: React.FC = () => {
     useEffect(() => {
         fetchData();
     }, []);
-
+    const apiUrl = 'https://api.zidoo.online/api';
     const fetchData = async () => {
         const token = localStorage.getItem('token');
         const config = {
@@ -66,7 +66,7 @@ const Dashboard: React.FC = () => {
         };
 
         try {
-            const totalResponse: ApiResponse<number> = await axios.get('${apiUrl}/countOrder', config);
+            const totalResponse: ApiResponse<number> = await axios.get(`${apiUrl}/countOrder`, config);
             setTotalOrder(totalResponse.data);
         } catch (error) {
             console.error('Error fetching total order:', error);
@@ -74,13 +74,13 @@ const Dashboard: React.FC = () => {
 
         try {
             // Fetch Products
-            const productsResponse: ApiResponse<Product[]> = await axios.get('${apiUrl}/products', config);
+            const productsResponse: ApiResponse<Product[]> = await axios.get(`${apiUrl}/products`, config);
             const productsData = productsResponse.data;
             setProducts(productsData.slice(0, 10));
             setTotalProducts(productsData.length);
 
             // Fetch Orders
-            const ordersResponse: ApiResponse<Order[]> = await axios.get('${apiUrl}/orders', config);
+            const ordersResponse: ApiResponse<Order[]> = await axios.get(`${apiUrl}/orders`, config);
             const ordersData = ordersResponse.data;
             setOrders(ordersData.slice(0, 10));
 
@@ -91,7 +91,7 @@ const Dashboard: React.FC = () => {
             setCompletedOrdersTotal(totalCompletedPrice);
 
             // Fetch Users
-            const usersResponse: ApiResponse<{ id: number }[]> = await axios.get('${apiUrl}/users', config);
+            const usersResponse: ApiResponse<{ id: number }[]> = await axios.get(`${apiUrl}/users`, config);
             setUsersCount(usersResponse.data.length);
         } catch (error) {
             console.error('Error fetching data:', error);

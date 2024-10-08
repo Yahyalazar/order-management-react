@@ -73,7 +73,7 @@ const Crud = () => {
                 }
             };
 
-            const response = await axios.get('${apiUrl}/users', config);
+            const response = await axios.get(`${apiUrl}/users`, config);
             setUsers(response.data);
         } catch (error) {
             console.error("Error fetching users: ", error);
