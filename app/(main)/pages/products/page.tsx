@@ -21,7 +21,7 @@ import axios from 'axios';
 import { config } from 'process';
 /* @todo استخدام 'as any' لأنواع هنا. سيتم الإصلاح في النسخة القادمة بسبب مشكلة نوع حدث onSelectionChange. */
 const Crud = () => {
-    const apiUrl = 'https://api.zidoo.online/api';
+
     let emptyProduct: Demo.Product = {
     id: '',
     name: '',
@@ -58,6 +58,7 @@ const Crud = () => {
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
     const [globalFilterValue, setGlobalFilterValue] = useState<string>('');
+    const apiUrl = 'https://api.zidoo.online/api';
     useEffect(() => {
         fetchdata()
         ProductService.getProducts().then((data) => setProducts(data as any));
@@ -130,7 +131,7 @@ const Crud = () => {
                     fetchdata();
                     toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Product Updated', life: 3000 });
                 } else {
-                    const response = await axios.post('${apiUrl}/products', {
+                    const response = await axios.post(`${apiUrl}/products`, {
                         name: _product.name,
                         price: _product.price,
                         stock: _product.stock,
