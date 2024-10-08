@@ -1,7 +1,9 @@
 import { Demo } from '@/types';
 import axios from 'axios';
 
+const apiUrl='http://www.api.zidoo.online/api';
 export const ProductService = {
+
     getProductsSmall() {
         return fetch('/demo/data/products-small.json', { headers: { 'Cache-Control': 'no-cache' } })
             .then((res) => res.json())
@@ -15,7 +17,7 @@ export const ProductService = {
                 Authorization: `Bearer ${token}` // include token in Authorization header
             }
         };
-        const response = await axios.get(`https://api.zidoo.online/api/products`, config);
+        const response = await axios.get(`${apiUrl}/products`, config);
         return response.data;
     },
 
@@ -26,7 +28,7 @@ export const ProductService = {
                 Authorization: `Bearer ${token}` // include token in Authorization header
             }
         };
-        const response = await axios.get(`https://api.zidoo.online/api/orders`, config);
+        const response = await axios.get(`${apiUrl}/orders`, config);
         return response.data;
     },
 
@@ -37,7 +39,7 @@ export const ProductService = {
                 Authorization: `Bearer ${token}` // include token in Authorization header
             }
         };
-        const response = await axios.put(`https://api.zidoo.online/api/products/${id}`, data, config);
+        const response = await axios.put(`${apiUrl}/products/${id}`, data, config);
         return response.data;
     },
 
@@ -48,7 +50,7 @@ export const ProductService = {
                 Authorization: `Bearer ${token}` // include token in Authorization header
             }
         };
-        const response = await axios.delete(`https://api.zidoo.online/api/products/${id}`, config);
+        const response = await axios.delete(`${apiUrl}/products/${id}`, config);
         return response.data;
     },
 
