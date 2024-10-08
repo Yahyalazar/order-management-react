@@ -71,6 +71,7 @@ const statuses = [
     { label: 'تم الشحن', value: 'Shipped' },
     { label: 'مؤجل', value: 'postponed' },
     { label: 'مرتجع', value: 'returned' },
+    { label: 'تم الدفع', value: 'paid' },
     { label: 'تم التسليم', value: 'delivered' },
     { label: 'مستبدل', value: 'replaced' },
     { label: 'مكتمل', value: 'completed' },
@@ -242,6 +243,8 @@ const statusBodyTemplate = (rowData:any) => {
             case 'delivered':
                 return 'success';
             case 'completed':
+                return 'success';
+            case 'paid':
                 return 'success';
             case 'cancelled':
                 return 'danger';
