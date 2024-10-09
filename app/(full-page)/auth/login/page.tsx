@@ -14,6 +14,7 @@ const apiUrl = 'https://api.zidoo.online/api';
 const LoginPage = () => {
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [checked, setChecked] = useState(false);
     const router = useRouter();
 
@@ -28,6 +29,7 @@ const LoginPage = () => {
     }, [router]);
 
     const handleLogin = async () => {
+        setErrorMessage(null);
         try {
            // await fetchCsrfToken();
             const response = await axios.post(`${apiUrl}/login`, {
@@ -44,8 +46,13 @@ const LoginPage = () => {
             // Save token or user data and redirect
             router.push('/'); // Redirect to homepage or dashboard
         } catch (error) {
-            console.error("Login failed", error);
-            // Optionally show an error message to the user
+            if (axios.isAxiosError(error) && error.response) {
+                // If there's an error response from the server (e.g., wrong credentials)
+                setErrorMessage('البريد الإلكتروني أو كلمة المرور غير صالحة. يرجى المحاولة مرة أخرى.');
+            } else {
+                // Handle any other errors (e.g., network errors)
+                setErrorMessage('فشل تسجيل الدخول. يرجى المحاولة مرة أخرى في وقت لاحق.');
+            }
         }
     };
     const containerClassName = classNames('surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden');
@@ -78,6 +85,13 @@ const LoginPage = () => {
                                     <Checkbox inputId="rememberme1" checked={checked} onChange={(e) => setChecked(e.checked ?? false)} className="mr-2"></Checkbox>
                                     <label htmlFor="rememberme1">تذكرني</label>
                                 </div>
+
+                                {errorMessage && (
+                                <div className="p-error mb-3" style={{ color: 'red', textAlign: 'center' }}>
+                                    {errorMessage}
+                                </div>
+                                )}
+
                             </div>
                             <Button label="تسجيل الدخول" className="w-full" onClick={handleLogin}></Button>
                         </div>

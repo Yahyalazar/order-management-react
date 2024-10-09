@@ -41,6 +41,7 @@ const OrderPage = () => {
 
 const [orders, setOrders] = useState<any[]>([]);
 const [orderItems, setOrderItems] = useState<any[]>([]);
+const [phoneError, setPhoneError] = useState<string | null>(null);
 const [products, setProducts] = useState<any[]>([]);
 const [fullName, setFullName] = useState('');
 const [phone, setPhone] = useState('');
@@ -53,8 +54,9 @@ const [order, setOrder] = useState<Order>(emptyOrder);
 const [filters, setFilters] = useState({
     global: { value: null as string | null, matchMode: FilterMatchMode.CONTAINS },
     created_at: { value: null, matchMode: FilterMatchMode.BETWEEN },
-    status: { value: null, matchMode: FilterMatchMode.BETWEEN },
+    status: { value: null, matchMode: FilterMatchMode.EQUALS },
 });
+
 const [selectedOrders, setSelectedOrders] = useState<Order[]>([]);
 const [productDialog, setProductDialog] = useState<boolean>(false);
 const [selectedOrderItems, setSelectedOrderItems] = useState([]);
@@ -100,16 +102,29 @@ interface Product {
     price: number;
 }
 
+const initFilters = () => {
+    setFilters({
+        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        created_at: { value: null, matchMode: FilterMatchMode.BETWEEN },
+        status: { value: null, matchMode: FilterMatchMode.EQUALS },
+    });
+    setDateRange({ startDate: null, endDate: null });
+
+    setGlobalFilter('');
+};
 
 
+const clearFilter = () => {
 
-
+    initFilters();
+};
 
 
 
 useEffect(() => {
     fetchdata();
 }, []);
+
 const filterByDateRange = (order: any) => {
     const { startDate, endDate } = dateRange;
     const orderDate = new Date(order.created_at);
@@ -172,10 +187,10 @@ const statusFilterTemplate = (options:any) => {
         <Dropdown
             value={options.value}
             options={statuses}
-            onChange={(e) => options.filterCallback(e.value)}
+            onChange={(e) => options.filterApplyCallback(e.value)}
             placeholder="اختر الحالة"
             className="p-column-filter"
-            showClear
+            //showClear
         />
     );
 };
@@ -185,6 +200,12 @@ const removeOrderItem = (index: number) => {
     updatedItems.splice(index, 1);
     setOrderItems(updatedItems);
     calculateTotalPrice(updatedItems);
+};
+
+// Validation function for phone number
+const validatePhoneNumber = (phone: string) => {
+    const phoneRegex = /^\d{10}$/;
+    return phoneRegex.test(phone);
 };
 
 
@@ -316,9 +337,9 @@ return (
                 aria-label="End Date Filter"
             />
         </div>
-        <div className="p-col-12">
+        {/* <div className="p-col-12">
             <Button label="Clear" className="p-button-secondary mt-2" onClick={clearDateRange} />
-        </div>
+        </div> */}
     </div>
 );
 };
@@ -449,6 +470,13 @@ const downloadCSV = (csvContent: BlobPart, filename: string) => {
 const saveOrder = async () => {
     setSubmitted(true);
 
+    if (!validatePhoneNumber(phone)) {
+        setPhoneError('يجب أن يحتوي رقم الهاتف على 10 أرقام');
+        return;
+    } else {
+        setPhoneError(null);
+    }
+
     // Ensure no duplicate products in the order
     const uniqueOrderItems = orderItems.reduce((acc, item) => {
         const existingItemIndex = acc.findIndex((i: { product_id: any; }) => i.product_id === item.product_id);
@@ -473,7 +501,7 @@ const saveOrder = async () => {
         items: uniqueOrderItems, // Use unique order items to prevent duplicates
     };
 
-    console.log('Order Data being sent to the backend:', orderData);
+    /* console.log('Order Data being sent to the backend:', orderData); */
 
     try {
         const token = localStorage.getItem('token');
@@ -646,7 +674,8 @@ const header = (
                     setFilters({ ...filters, global: { value, matchMode: FilterMatchMode.CONTAINS } });
                 }}
             />
-        </span>
+
+        </span><Button type="button" icon="pi pi-filter-slash" label="Clear" outlined onClick={clearFilter} />
     </div>
 );
 
@@ -701,10 +730,11 @@ return (
                     <InputText value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="الاسم الكامل" />
                 </div>
 
-                <div className='row-span-3 mb-2'>
-                    <p>الهاتف</p>
-                    <InputText value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="الهاتف" />
-                </div>
+                <div className="row-span-3 mb-2">
+            <p>الهاتف</p>
+            <InputText value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="الهاتف" />
+            {phoneError && <small className="p-error">{phoneError}</small>} {/* Display phone error message */}
+            </div>
 
                 <div className='row-span-3 mb-2'>
                     <p>عنوان</p>

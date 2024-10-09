@@ -1,0 +1,147 @@
+/* eslint-disable @next/next/no-img-element */
+'use client';
+import axios from 'axios';
+import { Button } from 'primereact/button';
+import { Column } from 'primereact/column';
+import { DataTable } from 'primereact/datatable';
+import { Dialog } from 'primereact/dialog';
+import { OverlayPanel } from 'primereact/overlaypanel';
+import { InputNumber } from 'primereact/inputnumber';
+import { InputText } from 'primereact/inputtext';
+import { Dropdown } from 'primereact/dropdown';
+import { Toast } from 'primereact/toast';
+import { Toolbar } from 'primereact/toolbar';
+import { Tag } from 'primereact/tag';
+import { classNames } from 'primereact/utils';
+import React, { useEffect, useRef, useState } from 'react';
+import { Calendar } from 'primereact/calendar';
+import './test5.css';
+
+const OrderPage = () => {
+    const apiUrl = 'https://api.zidoo.online/api';
+    const emptyOrder = {
+        id: '',
+        fullname: '',
+        phone: '',
+        address: '',
+        status: 'new',
+        total_price: 0,
+        created_at: '',
+        updated_at: '',
+        items: [],
+    };
+
+    const [orders, setOrders] = useState([]);
+    const [selectedOrders, setSelectedOrders] = useState([]);
+    const [filters, setFilters] = useState({
+        global: { value: null, matchMode: 'contains' },
+        status: { value: null, matchMode: 'equals' },
+    });
+    const toast = useRef(null);
+
+    const statuses = [
+        { label: 'جديد', value: 'new' },
+        { label: 'تم التأكيد', value: 'confirmed' },
+        { label: 'تم الشحن', value: 'Shipped' },
+        { label: 'مؤجل', value: 'postponed' },
+        { label: 'مرتجع', value: 'returned' },
+        { label: 'تم التسليم', value: 'delivered' },
+        { label: 'مستبدل', value: 'replaced' },
+        { label: 'مكتمل', value: 'completed' },
+        { label: 'تم الإلغاء', value: 'cancelled' },
+    ];
+
+    // Fetch orders data
+    useEffect(() => {
+        fetchOrders();
+    }, []);
+
+    const fetchOrders = async () => {
+        const token = localStorage.getItem('token');
+        const config = {
+            headers: { Authorization: `Bearer ${token}` },
+        };
+        try {
+            const response = await axios.get(`${apiUrl}/orders`, config);
+            const sortedOrders = response.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            setOrders(sortedOrders);
+        } catch (error) {
+            console.error('Error fetching orders:', error);
+        }
+    };
+
+    // Get severity based on status
+    const getSeverity = (status) => {
+        switch (status) {
+            case 'new':
+                return 'info';
+            case 'confirmed':
+            case 'delivered':
+            case 'completed':
+                return 'success';
+            case 'Shipped':
+                return 'success';
+            case 'postponed':
+                return 'warning';
+            case 'returned':
+            case 'cancelled':
+                return 'danger';
+            default:
+                return null;
+        }
+    };
+
+    // Status filter template for dropdown
+    const statusFilterTemplate = (options) => {
+        return (
+            <Dropdown
+                value={options.value}
+                options={statuses}
+                onChange={(e) => options.filterApplyCallback(e.value)}
+                placeholder="اختر الحالة"
+                className="p-column-filter"
+                showClear
+            />
+        );
+    };
+
+    // Status body template
+    const statusBodyTemplate = (rowData) => {
+        return <Tag value={rowData.status} severity={getSeverity(rowData.status)} />;
+    };
+
+    return (
+        <div className="grid Crud-demo" dir="rtl">
+            <div className="col-12">
+                <div className="card">
+                    <Toast ref={toast} />
+                    <Toolbar className="mb-4" />
+
+                    <DataTable
+                        value={orders}
+                        paginator
+                        rows={10}
+                        selection={selectedOrders}
+                        onSelectionChange={(e) => setSelectedOrders(e.value)}
+                        dataKey="id"
+                        globalFilter={filters.global.value}
+                        filters={filters}
+                        responsiveLayout="scroll"
+                        emptyMessage="لا توجد طلبات."
+                    >
+                        <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
+                        <Column field="id" header="معرف الطلب" sortable></Column>
+                        <Column field="fullname" header="الاسم الكامل" sortable></Column>
+                        <Column field="phone" header="الهاتف" sortable></Column>
+                        <Column field="address" header="عنوان" sortable></Column>
+                        <Column field="status" header="الحالة" body={statusBodyTemplate} filter filterElement={statusFilterTemplate} sortable></Column>
+                        <Column field="total_price" header="السعر الاجمالي" sortable></Column>
+                        <Column field="created_at" header="تاريخ الإنشاء" body={(rowData) => new Date(rowData.created_at).toLocaleDateString()} sortable></Column>
+                    </DataTable>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default OrderPage;
