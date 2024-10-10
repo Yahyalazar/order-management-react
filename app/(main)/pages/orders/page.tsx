@@ -430,7 +430,7 @@ const hideDialog = () => {
 };
 const exportSelectedCSV = () => {
     const csvData: any[] = []; // Move this outside the function as you don't need to call `useState` here.
- var total:Number =0;
+
     selectedOrders.forEach((order: Order) => {
         let itemS = '';
 
@@ -448,7 +448,7 @@ const exportSelectedCSV = () => {
             products: itemS,
             total_price: order.total_price
         });
-        total=Number(total)+Number(order.total_price);
+       
     });
 
     // Perform the CSV export with the 'csvData'
