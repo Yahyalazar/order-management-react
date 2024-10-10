@@ -67,7 +67,7 @@ const toast = useRef<Toast>(null);
 const dt = useRef(null);
 const op2 = useRef<OverlayPanel>(null);
 
-const statuses = [
+const [statuses, setStatuses] = useState([
     { label: 'جديد', value: 'new' },
     { label: 'تم التأكيد', value: 'confirmed' },
     { label: 'تم الشحن', value: 'Shipped' },
@@ -77,7 +77,8 @@ const statuses = [
     { label: 'مستبدل', value: 'replaced' },
     { label: 'مكتمل', value: 'completed' },
     { label: 'تم الإلغاء', value: 'cancelled' }
-];
+]);
+
 
 interface Order {
     id: string;
@@ -111,6 +112,20 @@ const initFilters = () => {
     setDateRange({ startDate: null, endDate: null });
 
     setGlobalFilter('');
+};
+
+const countOrdersByStatus = (orders: any[]) => {
+    const statusCounts = orders.reduce((acc: any, order: any) => {
+        const status = order.status;
+        if (acc[status]) {
+            acc[status]++;
+        } else {
+            acc[status] = 1;
+        }
+        return acc;
+    }, {});
+
+    return statusCounts;
 };
 
 
@@ -151,7 +166,16 @@ const fetchdata = async () => {
     try {
         const response = await axios.get(`${apiUrl}/orders`, config);
         const sortedOrders = response.data.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+        // Count orders by status and update statuses
+        const statusCounts = countOrdersByStatus(sortedOrders);
+        setStatuses(statuses.map(status => ({
+            ...status,
+            label: `${status.label} (${statusCounts[status.value] || 0})`
+        })));
+
         setOrders(sortedOrders);
+
     } catch (error) {
         console.error('Error fetching orders:', error);
     }
@@ -229,7 +253,6 @@ const statusBodyTemplate = (rowData:any) => {
                     order.id === rowData.id ? { ...order, status: newStatus } : order
                 )
             );
-
             toast.current?.show({
                 severity: 'success',
                 summary: 'تم التحديث',
@@ -247,30 +270,45 @@ const statusBodyTemplate = (rowData:any) => {
         }
     };
 
-    const getSeverity = (status:any) => {
+    const statusColors = {
+        'new': 'green',          // Color for 'جديد'
+        'confirmed': 'blue',     // Color for 'تم التأكيد'
+        'Shipped': 'purple',     // Color for 'تم الشحن'
+        'postponed': 'orange',   // Color for 'مؤجل'
+        'returned': 'red',       // Color for 'مرتجع'
+        'delivered': 'blue',     // Color for 'تم التسليم'
+        'replaced': 'violet',    // Color for 'مستبدل'
+        'completed': 'purple',   // Color for 'مكتمل'
+        'cancelled': 'red'       // Color for 'تم الإلغاء'
+    };
+
+
+    const getSeverity = (status: any) => {
         switch (status) {
             case 'new':
-                return 'info';
+                return 'info';       // PrimeReact 'info' severity (typically blue)
             case 'confirmed':
-                return 'success';
+                return 'success';    // PrimeReact 'success' severity (typically green)
             case 'Shipped':
-                return 'success';
+                return 'primary';    // PrimeReact 'primary' severity (typically blue)
             case 'postponed':
-                return 'warning';
+                return 'warning';    // PrimeReact 'warning' severity (typically orange/yellow)
             case 'replaced':
-                return 'info';
+                return 'info';       // PrimeReact 'info' severity (typically blue)
             case 'returned':
-                return 'danger';
+                return 'danger';     // PrimeReact 'danger' severity (typically red)
             case 'delivered':
-                return 'success';
+                return 'success';    // PrimeReact 'success' severity (typically green)
             case 'completed':
-                return 'success';
+                return 'success';    // PrimeReact 'success' severity (typically green)
             case 'cancelled':
-                return 'danger';
+                return 'danger';     // PrimeReact 'danger' severity (typically red)
             default:
-                return null;
+                return null;         // Default case returns no specific severity
         }
     };
+
+
 
     return (
         <Dropdown
@@ -397,7 +435,7 @@ const exportSelectedCSV = () => {
         let itemS = '';
 
         order.items.forEach((item) => {
-            itemS = itemS + ' | ' + item.product.name + ' [' + item.quantity + ']';
+            itemS = itemS + '  ' + item.product.name + ' [' + item.quantity + ']';
         });
 
         csvData.push({
@@ -530,7 +568,7 @@ const saveOrder = async () => {
             } else {
                 updatedOrders.push(response.data);
             }
-
+             fetchdata();
             setOrders(updatedOrders);
             setOrderDialog(false);
             setOrder(emptyOrder);
@@ -550,6 +588,7 @@ const saveOrder = async () => {
             life: 3000
         });
     }
+
 };
 
 

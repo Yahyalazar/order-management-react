@@ -91,8 +91,8 @@ const Dashboard: React.FC = () => {
             setCompletedOrdersTotal(totalCompletedPrice);
 
             // Fetch Users
-            const usersResponse: ApiResponse<{ id: number }[]> = await axios.get(`${apiUrl}/users`, config);
-            setUsersCount(usersResponse.data.length);
+            const usersResponse = await axios.get(`${apiUrl}/deliveredOrder`, config);
+            setUsersCount(usersResponse.data);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -136,7 +136,7 @@ const Dashboard: React.FC = () => {
                     <div className="card mb-0">
                         <div className="flex justify-content-between mb-3">
                             <div>
-                                <span className="block text-500 font-medium mb-3">الرصيد</span>
+                                <span className="block text-500 font-medium mb-3"> الرصيد المكتمل</span>
                                 <div className="text-900 font-medium text-xl">${totalOrder}</div>
                             </div>
                             <div className="flex align-items-center justify-content-center bg-orange-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
@@ -162,11 +162,11 @@ const Dashboard: React.FC = () => {
                     <div className="card mb-0">
                         <div className="flex justify-content-between mb-3">
                             <div>
-                                <span className="block text-500 font-medium mb-3">العملاء</span>
-                                <div className="text-900 font-medium text-xl">{usersCount}</div>
+                                <span className="block text-500 font-medium mb-3">الرصيد المستلم</span>
+                                <div className="text-900 font-medium text-xl">${usersCount}</div>
                             </div>
                             <div className="flex align-items-center justify-content-center bg-purple-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
-                                <i className="pi pi-comment text-purple-500 text-xl" />
+                                <i className="pi pi-dollar text-purple-500 text-xl" />
                             </div>
                         </div>
                     </div>

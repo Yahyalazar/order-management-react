@@ -247,7 +247,7 @@ const Crud = () => {
                     <Toolbar className="mb-4" left={() => (
                         <>
                             <Button label="جديد" icon="pi pi-plus" className="ml-2" onClick={openNew} />
-                            <Button label="حذف" icon="pi pi-trash" className="mr-2" disabled={!selectedUsers || !selectedUsers.length} onClick={() => setDeleteUsersDialog(true)} />
+                            {/* <Button label="حذف" icon="pi pi-trash" className="mr-2" disabled={!selectedUsers || !selectedUsers.length} onClick={() => setDeleteUsersDialog(true)} />*/}
                         </>
                     )} />
                     <DataTable

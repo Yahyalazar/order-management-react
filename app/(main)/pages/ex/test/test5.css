@@ -1,0 +1,23 @@
+.created_at .p-column-filter-buttonbar {
+    display: none;
+}
+.rtl-text {
+    direction: rtl;
+    text-align: right;
+}
+.p-column-filter-buttonbar {
+    display: none;
+}
+@media only screen and (max-width: 600px) {
+    .p-datatable-header div {
+        gap: 10px;
+        display: flex;
+        flex-direction: column;
+    }
+    span.p-input-icon-left {
+        width: 80%;
+    }
+    input.p-inputtext.p-component {
+        width: 100%;
+    }
+  }
