@@ -444,15 +444,11 @@ const exportSelectedCSV = () => {
             address: order.address,
             id: order.id,
             status: order.status,
-            total_price: order.total_price,
             created_at: formatDate(order.created_at),
             products: itemS,
+            total_price: order.total_price
         });
         total=Number(total)+Number(order.total_price);
-    });
-    csvData.push({
-        total_price:'total:'+total,
-
     });
 
     // Perform the CSV export with the 'csvData'
@@ -462,9 +458,9 @@ const exportSelectedCSV = () => {
         { label: 'Phone', key: 'phone' },
         { label: 'Address', key: 'address' },
         { label: 'Status', key: 'status' },
-        { label: 'Total Price', key: 'total_price' },
         { label: 'Created At', key: 'created_at' },
-        { label: 'Products', key: 'products' }
+        { label: 'Products', key: 'products' },
+        { label: 'Total Price', key: 'total_price' }
     ];
 
     const csv = convertArrayToCSV(csvData, csvHeaders);
