@@ -67,6 +67,8 @@ const toast = useRef<Toast>(null);
 const dt = useRef(null);
 const op2 = useRef<OverlayPanel>(null);
 
+const is_admin = localStorage.getItem('is_admin');
+
 const [statuses, setStatuses] = useState([
     { label: 'جديد', value: 'new' },
     { label: 'تم التأكيد', value: 'confirmed' },
@@ -448,7 +450,7 @@ const exportSelectedCSV = () => {
             products: itemS,
             total_price: order.total_price
         });
-       
+
     });
 
     // Perform the CSV export with the 'csvData'
@@ -691,13 +693,16 @@ const showProductDialog = (rowData: { items: React.SetStateAction<never[]>; }) =
 };
 
 const actionBodyTemplate = (rowData: any) => {
+    if(is_admin=='true'){
     return (
         <>
+
             <Button icon="pi pi-eye" rounded severity="info"  className="p-1" onClick={() => showProductDialog(rowData)} />
             <Button icon="pi pi-pencil" rounded severity="success" className="p-1" onClick={() => editOrder(rowData)} />
             <Button icon="pi pi-trash" rounded severity="warning" className="p-1" onClick={() => confirmDeleteSingleOrder(rowData)} />
         </>
     );
+    }
 };
 
 const header = (
