@@ -703,6 +703,14 @@ const actionBodyTemplate = (rowData: any) => {
         </>
     );
     }
+    else{
+        return(
+            <>
+             <Button icon="pi pi-eye" rounded severity="info"  className="p-1" onClick={() => showProductDialog(rowData)} />
+            </>
+        )
+
+    }
 };
 
 const header = (
