@@ -395,12 +395,20 @@ const formatDate = (value: string | number | Date) => {
 };
 
 const leftToolbarTemplate = () => {
+    if(is_admin=="true"){
     return (
         <React.Fragment>
             <Button label="جديد" icon="pi pi-plus" severity="success" className="ml-2" onClick={openNew} />
             <Button label="حذف" icon="pi pi-trash" severity="danger" className="mr-2" onClick={confirmDeleteSelected} disabled={!selectedOrders || !selectedOrders.length} />
         </React.Fragment>
     );
+    }else{
+        return(
+            <React.Fragment>
+            <Button label="جديد" icon="pi pi-plus" severity="success" className="ml-2" onClick={openNew} />
+            </React.Fragment>
+        )
+    }
 };
 
 const rightToolbarTemplate = () => {
@@ -410,6 +418,7 @@ const rightToolbarTemplate = () => {
             <Button label="تصدير" icon="pi pi-upload" severity="help" onClick={exportSelectedCSV} disabled={!selectedOrders.length} />
         </React.Fragment>
     );
+
 };
 
 const openNew = () => {
@@ -707,6 +716,7 @@ const actionBodyTemplate = (rowData: any) => {
         return(
             <>
              <Button icon="pi pi-eye" rounded severity="info"  className="p-1" onClick={() => showProductDialog(rowData)} />
+             <Button icon="pi pi-pencil" rounded severity="success" className="p-1" onClick={() => editOrder(rowData)} />
             </>
         )
 

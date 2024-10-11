@@ -68,6 +68,7 @@ const Crud = () => {
         ProductService.getProducts().then((data) => setProducts(data as any));
 
     }
+    const is_admin = localStorage.getItem('is_admin');
     const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         let _filters = { ...filters };
@@ -296,6 +297,7 @@ const Crud = () => {
     };
 
     const leftToolbarTemplate = () => {
+        if(is_admin=="true"){
         return (
             <React.Fragment>
                 <div className="my-2">
@@ -304,6 +306,15 @@ const Crud = () => {
                 </div>
             </React.Fragment>
         );
+        }else{
+            return(
+            <React.Fragment>
+                <div className="my-2">
+                    <Button label="جديد" icon="pi pi-plus" severity="success" className=" ml-2" onClick={openNew} />
+                </div>
+            </React.Fragment>
+            )
+        }
     };
 
     const rightToolbarTemplate = () => {
@@ -342,14 +353,6 @@ const Crud = () => {
         );
     };
 
-    /* const categoryBodyTemplate = (rowData: Demo.Product) => {
-        return (
-            <>
-                <span className="p-column-title">الفئة</span>
-                {rowData.category}
-            </>
-        );
-    }; */
 
     const ratingBodyTemplate = (rowData: Demo.Product) => {
         return (
@@ -379,22 +382,23 @@ const Crud = () => {
         );
     };
 
-    /* const statusBodyTemplate = (rowData: Demo.Product) => {
-        return (
-            <>
-                <span className="p-column-title">الحالة</span>
-                <span className={`product-badge status-${rowData.inventoryStatus?.toLowerCase()}`}>{rowData.inventoryStatus}</span>
-            </>
-        );
-    }; */
 
     const actionBodyTemplate = (rowData: Demo.Product) => {
+        if(is_admin=="true"){
         return (
             <>
                 <Button icon="pi pi-pencil" rounded severity="success" className="ml-2" onClick={() => editProduct(rowData)} />
                 <Button icon="pi pi-trash" rounded severity="warning" onClick={() => confirmDeleteProduct(rowData)} />
             </>
         );
+        }else{
+
+            return (
+                <>
+                    <Button icon="pi pi-pencil" rounded severity="success" className="ml-2" onClick={() => editProduct(rowData)} />
+                </>
+            );
+        }
     };
 
     const header = (
@@ -487,32 +491,6 @@ const Crud = () => {
                             {submitted && !product.name && <small className="p-error">الاسم مطلوب.</small>}
                         </div>
 
-                        {/* <div className="field">
-                            <label htmlFor="description">الوصف</label>
-                            <InputTextarea id="description" value={product.description} onChange={(e) => onInputChange(e, 'description')} required rows={3} cols={20} />
-                        </div> */}
-
-                        {/* <div className="field">
-                            <label className="mb-3">الفئة</label>
-                            <div className="formgrid grid">
-                                <div className="field-radiobutton col-6">
-                                    <RadioButton inputId="category1" name="category" value="Accessories" onChange={onCategoryChange} checked={product.category === 'Accessories'} />
-                                    <label htmlFor="category1">الإكسسوارات</label>
-                                </div>
-                                <div className="field-radiobutton col-6">
-                                    <RadioButton inputId="category2" name="category" value="Clothing" onChange={onCategoryChange} checked={product.category === 'Clothing'} />
-                                    <label htmlFor="category2">الملابس</label>
-                                </div>
-                                <div className="field-radiobutton col-6">
-                                    <RadioButton inputId="category3" name="category" value="Electronics" onChange={onCategoryChange} checked={product.category === 'Electronics'} />
-                                    <label htmlFor="category3">الإلكترونيات</label>
-                                </div>
-                                <div className="field-radiobutton col-6">
-                                    <RadioButton inputId="category4" name="category" value="Fitness" onChange={onCategoryChange} checked={product.category === 'Fitness'} />
-                                    <label htmlFor="category4">اللياقة البدنية</label>
-                                </div>
-                            </div>
-                        </div> */}
 
                         <div className="formgrid grid">
                             <div className="field col">
