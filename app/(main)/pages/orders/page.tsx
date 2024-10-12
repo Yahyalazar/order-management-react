@@ -759,7 +759,7 @@ return (
     dataKey="id"
     paginator
     rows={10}
-    rowsPerPageOptions={[5, 10, 25]}
+    rowsPerPageOptions={[5, 10, 25,50,100,250,500,1000]}
     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
     currentPageReportTemplate="عرض {first} إلى {last} من {totalRecords} طلبات"
     globalFilter={globalFilter}
