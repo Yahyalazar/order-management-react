@@ -520,12 +520,12 @@ const downloadCSV = (csvContent: BlobPart, filename: string) => {
 const saveOrder = async () => {
     setSubmitted(true);
 
-    if (!validatePhoneNumber(phone)) {
-        setPhoneError('يجب أن يحتوي رقم الهاتف على 10 أرقام');
-        return;
-    } else {
+    // if (!validatePhoneNumber(phone)) {
+    //     setPhoneError('يجب أن يحتوي رقم الهاتف على 10 أرقام');
+    //     return;
+    // } else {
         setPhoneError(null);
-    }
+    // }
 
     // Ensure no duplicate products in the order
     const uniqueOrderItems = orderItems.reduce((acc, item) => {
