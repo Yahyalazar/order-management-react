@@ -58,6 +58,7 @@ const [filters, setFilters] = useState({
 });
 
 const [selectedOrders, setSelectedOrders] = useState<Order[]>([]);
+const [displayProduct,setDisplayProduct] =useState('');
 const [productDialog, setProductDialog] = useState<boolean>(false);
 const [selectedOrderItems, setSelectedOrderItems] = useState([]);
 const [submitted, setSubmitted] = useState(false);
@@ -696,9 +697,12 @@ const deleteSelectedOrders = async () => {
 
 
 
-const showProductDialog = (rowData: { items: React.SetStateAction<never[]>; }) => {
+const showProductDialog = (rowData: any) => {
     setSelectedOrderItems(rowData.items);
+    setDisplayProduct(rowData.address);
+
     setProductDialog(true);
+
 };
 
 const actionBodyTemplate = (rowData: any) => {
@@ -772,7 +776,7 @@ return (
     <Column field="id" header="معرف الطلب" sortable></Column>
     <Column field="fullname" header="الاسم الكامل" sortable></Column>
    <Column field="phone" header="الهاتف" sortable ></Column>
-    <Column field="address" header="عنوان" sortable></Column>
+   {/* <Column field="address" header="عنوان" sortable></Column> */}
     <Column field="status" header="الحالة" body={statusBodyTemplate} filter filterElement={statusFilterTemplate} sortable></Column>
     <Column field="total_price" header="السعر الاجمالي" sortable></Column>
     <Column
@@ -849,14 +853,22 @@ return (
                         </Dialog>
 
                 <Dialog visible={productDialog} style={{ width: '450px' }} header="Products" modal onHide={() => setProductDialog(false)} className='rtl-text'>
+                      <div className="field">
+                                <h6>العنوان </h6>
+                                <textarea>{displayProduct}</textarea>
+                            </div>
+
                     <DataTable   value={selectedOrderItems} responsiveLayout="scroll">
                         <Column field="product.name" header="اسم المنتج" sortable />
                         <Column field="quantity" header="كمية" sortable />
+
                         <Column field="price" header="السعر" body={(rowData) => {
                             const price = parseFloat(rowData.price);
                             return isNaN(price) ? 'N/A' : `${price.toFixed(2)}$`;
                         }} sortable />
                     </DataTable>
+
+
                 </Dialog>
 
                 <Dialog visible={deleteOrdersDialog} style={{ width: '450px' }} header="تأكيد" modal footer={<>
