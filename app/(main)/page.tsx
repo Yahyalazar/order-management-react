@@ -52,6 +52,7 @@ const Dashboard: React.FC = () => {
     const [productDialogVisible, setProductDialogVisible] = useState<boolean>(false);
     const [orderDialogVisible, setOrderDialogVisible] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
+    const [lenghtOrder,setLenghtOrder]=useState<number>(0);
 
     useEffect(() => {
         fetchData();
@@ -76,12 +77,14 @@ const Dashboard: React.FC = () => {
             // Fetch Products
             const productsResponse: ApiResponse<Product[]> = await axios.get(`${apiUrl}/products`, config);
             const productsData = productsResponse.data;
+            const lenght=productsData.length
             setProducts(productsData.slice(0, 10));
-            setTotalProducts(productsData.length);
+            setTotalProducts(lenght);
 
             // Fetch Orders
             const ordersResponse: ApiResponse<Order[]> = await axios.get(`${apiUrl}/orders`, config);
             const ordersData = ordersResponse.data;
+            setLenghtOrder(ordersData.length);
             setOrders(ordersData.slice(0, 10));
 
             // Calculate total price of completed orders
@@ -150,7 +153,7 @@ const Dashboard: React.FC = () => {
                         <div className="flex justify-content-between mb-3">
                             <div>
                                 <span className="block text-500 font-medium mb-3">الطلبات</span>
-                                <div className="text-900 font-medium text-xl">{orders.length}</div>
+                                <div className="text-900 font-medium text-xl">{lenghtOrder}</div>
                             </div>
                             <div className="flex align-items-center justify-content-center bg-cyan-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
                                 <i className="pi pi-inbox text-cyan-500 text-xl" />

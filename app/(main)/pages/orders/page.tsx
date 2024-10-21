@@ -592,12 +592,12 @@ const saveOrder = async () => {
                 life: 3000
             });
         }
-    } catch (error) {
+    } catch (error:any) {
         console.error('Error saving order:', error);
         toast.current?.show({
             severity: 'error',
             summary: 'Error',
-            detail: 'Failed to save order',
+            detail: String(error.response.data.message),
             life: 3000
         });
     }
