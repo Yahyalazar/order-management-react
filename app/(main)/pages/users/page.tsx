@@ -16,7 +16,7 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
 const Crud = () => {
-    const apiUrl = 'https://api.zidoo.online/api';
+    const apiUrl = 'https://wh1389740.ispot.cc/api';
     let emptyUser: User = {
         id: '',
         name: '',

@@ -18,7 +18,7 @@ import { Calendar } from 'primereact/calendar';
 import './test5.css';
 
 const OrderPage = () => {
-    const apiUrl = 'https://api.zidoo.online/api';
+    const apiUrl = 'https://wh1389740.ispot.cc/api';
     const emptyOrder = {
         id: '',
         fullname: '',

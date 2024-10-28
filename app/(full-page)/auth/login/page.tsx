@@ -10,7 +10,7 @@ import { Password } from 'primereact/password';
 import { InputText } from 'primereact/inputtext';
 import { classNames } from 'primereact/utils';
 
-const apiUrl = 'https://api.zidoo.online/api';
+const apiUrl = 'https://wh1389740.ispot.cc/api';
 const LoginPage = () => {
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
@@ -47,9 +47,11 @@ const LoginPage = () => {
             router.push('/'); // Redirect to homepage or dashboard
         } catch (error) {
             if (axios.isAxiosError(error) && error.response) {
+                console.log(email, password);
                 // If there's an error response from the server (e.g., wrong credentials)
                 setErrorMessage('البريد الإلكتروني أو كلمة المرور غير صالحة. يرجى المحاولة مرة أخرى.');
             } else {
+
                 // Handle any other errors (e.g., network errors)
                 setErrorMessage('فشل تسجيل الدخول. يرجى المحاولة مرة أخرى في وقت لاحق.');
             }
@@ -67,27 +69,27 @@ const LoginPage = () => {
                         background: 'linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)'
                     }}
                 >
-                    <div className="w-full surface-card py-8 px-5 sm:px-8" style={{ borderRadius: '53px' }}>
-                        <div className="text-center mb-5">
-                            <div className="text-900 text-3xl font-medium mb-3">مرحبًا!</div>
-                            <span className="text-600 font-medium">قم بتسجيل الدخول لمتابعة</span>
+                    <div className="w-full px-5 py-8 surface-card sm:px-8" style={{ borderRadius: '53px' }}>
+                        <div className="mb-5 text-center">
+                            <div className="mb-3 text-3xl font-medium text-900">مرحبًا!</div>
+                            <span className="font-medium text-600">قم بتسجيل الدخول لمتابعة</span>
                         </div>
 
                         <div>
-                            <label htmlFor="email1" className="block text-900 text-xl font-medium mb-2">البريد الإلكتروني</label>
-                            <InputText id="email1" type="text" placeholder="عنوان البريد الإلكتروني" className="w-full md:w-30rem mb-5"  onChange={(e) => setEmail(e.target.value)}/>
+                            <label htmlFor="email1" className="block mb-2 text-xl font-medium text-900">البريد الإلكتروني</label>
+                            <InputText id="email1" type="text" placeholder="عنوان البريد الإلكتروني" className="w-full mb-5 md:w-30rem"  onChange={(e) => setEmail(e.target.value)}/>
 
-                            <label htmlFor="password1" className="block text-900 font-medium text-xl mb-2">كلمة المرور</label>
-                            <Password inputId="password1" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="كلمة المرور" feedback={false} toggleMask className="w-full md:w-30rem mb-5"  />
+                            <label htmlFor="password1" className="block mb-2 text-xl font-medium text-900">كلمة المرور</label>
+                            <Password inputId="password1" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="كلمة المرور" feedback={false} toggleMask className="w-full mb-5 md:w-30rem"  />
 
-                            <div className="flex align-items-center justify-content-between mb-5 gap-5">
+                            <div className="flex gap-5 mb-5 align-items-center justify-content-between">
                                 <div className="flex align-items-center">
                                     <Checkbox inputId="rememberme1" checked={checked} onChange={(e) => setChecked(e.checked ?? false)} className="mr-2"></Checkbox>
                                     <label htmlFor="rememberme1">تذكرني</label>
                                 </div>
 
                                 {errorMessage && (
-                                <div className="p-error mb-3" style={{ color: 'red', textAlign: 'center' }}>
+                                <div className="mb-3 p-error" style={{ color: 'red', textAlign: 'center' }}>
                                     {errorMessage}
                                 </div>
                                 )}

@@ -26,7 +26,7 @@ import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import './test5.css';
 
 const OrderPage = () => {
-    const apiUrl = 'https://api.zidoo.online/api';
+    const apiUrl = 'https://wh1389740.ispot.cc/api';
     const emptyOrder: Order = {
         id: '',
         fullname: '',

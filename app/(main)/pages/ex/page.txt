@@ -70,7 +70,7 @@ const OrderPage = () => {
             },
         };
         try {
-            const response = await axios.get(`https://api.zidoo.online/api/orders`, config);
+            const response = await axios.get(`https://wh1389740.ispot.cc/api/orders`, config);
             setOrders(response.data);
         } catch (error) {
             console.error('Error fetching orders:', error);
@@ -123,7 +123,7 @@ const OrderPage = () => {
             const token = localStorage.getItem('token');
             const config = { headers: { Authorization: `Bearer ${token}` } };
             try {
-                const response = await axios.get(`https://api.zidoo.online/api/products`, config);
+                const response = await axios.get(`https://wh1389740.ispot.cc/api/products`, config);
                 const availableProducts = response.data.filter(product => product.stock > 0);
                 const outOfStockProducts = response.data.filter(product => product.stock <= 0);
 
@@ -254,10 +254,10 @@ const updateOrderItem = (index, field, value) => {
             let response;
             if (order.id) {
                 // If the order exists, update it
-                response = await axios.put(`https://api.zidoo.online/api/orders/${order.id}`, orderData, config);
+                response = await axios.put(`https://wh1389740.ispot.cc/api/orders/${order.id}`, orderData, config);
             } else {
                 // Create a new order
-                response = await axios.post(`https://api.zidoo.online/api/orders`, orderData, config);
+                response = await axios.post(`https://wh1389740.ispot.cc/api/orders`, orderData, config);
             }
 
             // After successfully saving the order
@@ -401,7 +401,7 @@ const updateOrderItem = (index, field, value) => {
         try {
             // Send DELETE requests for each selected order
             const deletePromises = selectedOrders.map(order =>
-                axios.delete(`https://api.zidoo.online/api/orders/${order.id}`, config)
+                axios.delete(`https://wh1389740.ispot.cc/api/orders/${order.id}`, config)
             );
             await Promise.all(deletePromises);  // Wait for all DELETE requests to complete
 
@@ -434,7 +434,7 @@ const updateOrderItem = (index, field, value) => {
                 };
 
                 // Update the order status on the backend
-                await axios.put(`https://api.zidoo.online/api/orders/${rowData.id}`, { status: newStatus }, config);
+                await axios.put(`https://wh1389740.ispot.cc/api/orders/${rowData.id}`, { status: newStatus }, config);
 
                 // Update the local state
                 setOrders(prevOrders =>
@@ -640,7 +640,7 @@ const updateOrderItem = (index, field, value) => {
         };
 
         try {
-            await axios.delete(`https://api.zidoo.online/api/orders/${order.id}`, config);
+            await axios.delete(`https://wh1389740.ispot.cc/api/orders/${order.id}`, config);
             let _orders = orders.filter((val) => val.id !== order.id);  // Filter out the deleted order
             setOrders(_orders);  // Update the orders list
             setDeleteOrderDialog(false);  // Close the delete confirmation dialog

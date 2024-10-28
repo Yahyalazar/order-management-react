@@ -25,7 +25,7 @@ const AppTopbar = forwardRef((props, ref) => {
             const token = localStorage.getItem('token');
             if (token) {
                 // Make logout API request
-                await axios.post('https://api.zidoo.online/api/logout', {}, {
+                await axios.post('https://wh1389740.ispot.cc/api/logout', {}, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },

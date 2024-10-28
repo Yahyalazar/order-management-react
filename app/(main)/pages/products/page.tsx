@@ -58,7 +58,7 @@ const Crud = () => {
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
     const [globalFilterValue, setGlobalFilterValue] = useState<string>('');
-    const apiUrl = 'https://api.zidoo.online/api';
+    const apiUrl = 'https://wh1389740.ispot.cc/api';
     useEffect(() => {
         fetchdata()
         ProductService.getProducts().then((data) => setProducts(data as any));

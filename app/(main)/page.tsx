@@ -57,7 +57,7 @@ const Dashboard: React.FC = () => {
     useEffect(() => {
         fetchData();
     }, []);
-    const apiUrl = 'https://api.zidoo.online/api';
+    const apiUrl ='https://wh1389740.ispot.cc/api';
     const fetchData = async () => {
         const token = localStorage.getItem('token');
         const config = {
@@ -123,53 +123,53 @@ const Dashboard: React.FC = () => {
             <div className="grid">
                 {/* Cards Section */}
                 <div className="col-12 lg:col-6 xl:col-3">
-                    <div className="card mb-0">
-                        <div className="flex justify-content-between mb-3">
+                    <div className="mb-0 card">
+                        <div className="flex mb-3 justify-content-between">
                             <div>
-                                <span className="block text-500 font-medium mb-3">المنتجات</span>
-                                <div className="text-900 font-medium text-xl">{totalProducts}</div>
+                                <span className="block mb-3 font-medium text-500">المنتجات</span>
+                                <div className="text-xl font-medium text-900">{totalProducts}</div>
                             </div>
-                            <div className="flex align-items-center justify-content-center bg-blue-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
-                                <i className="pi pi-box text-blue-500 text-xl" />
+                            <div className="flex bg-blue-100 align-items-center justify-content-center border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
+                                <i className="text-xl text-blue-500 pi pi-box" />
                             </div>
                         </div>
                     </div>
                 </div>
                 <div className="col-12 lg:col-6 xl:col-3">
-                    <div className="card mb-0">
-                        <div className="flex justify-content-between mb-3">
+                    <div className="mb-0 card">
+                        <div className="flex mb-3 justify-content-between">
                             <div>
-                                <span className="block text-500 font-medium mb-3"> الرصيد المكتمل</span>
-                                <div className="text-900 font-medium text-xl">${totalOrder}</div>
+                                <span className="block mb-3 font-medium text-500"> الرصيد المكتمل</span>
+                                <div className="text-xl font-medium text-900">${totalOrder}</div>
                             </div>
-                            <div className="flex align-items-center justify-content-center bg-orange-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
-                                <i className="pi pi-money-bill text-orange-500 text-xl" />
+                            <div className="flex bg-orange-100 align-items-center justify-content-center border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
+                                <i className="text-xl text-orange-500 pi pi-money-bill" />
                             </div>
                         </div>
                     </div>
                 </div>
                 <div className="col-12 lg:col-6 xl:col-3">
-                    <div className="card mb-0">
-                        <div className="flex justify-content-between mb-3">
+                    <div className="mb-0 card">
+                        <div className="flex mb-3 justify-content-between">
                             <div>
-                                <span className="block text-500 font-medium mb-3">الطلبات</span>
-                                <div className="text-900 font-medium text-xl">{lenghtOrder}</div>
+                                <span className="block mb-3 font-medium text-500">الطلبات</span>
+                                <div className="text-xl font-medium text-900">{lenghtOrder}</div>
                             </div>
                             <div className="flex align-items-center justify-content-center bg-cyan-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
-                                <i className="pi pi-inbox text-cyan-500 text-xl" />
+                                <i className="text-xl pi pi-inbox text-cyan-500" />
                             </div>
                         </div>
                     </div>
                 </div>
                 <div className="col-12 lg:col-6 xl:col-3">
-                    <div className="card mb-0">
-                        <div className="flex justify-content-between mb-3">
+                    <div className="mb-0 card">
+                        <div className="flex mb-3 justify-content-between">
                             <div>
-                                <span className="block text-500 font-medium mb-3">الرصيد تم التسليم</span>
-                                <div className="text-900 font-medium text-xl">${usersCount}</div>
+                                <span className="block mb-3 font-medium text-500">الرصيد تم التسليم</span>
+                                <div className="text-xl font-medium text-900">${usersCount}</div>
                             </div>
-                            <div className="flex align-items-center justify-content-center bg-purple-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
-                                <i className="pi pi-dollar text-purple-500 text-xl" />
+                            <div className="flex bg-purple-100 align-items-center justify-content-center border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
+                                <i className="text-xl text-purple-500 pi pi-dollar" />
                             </div>
                         </div>
                     </div>

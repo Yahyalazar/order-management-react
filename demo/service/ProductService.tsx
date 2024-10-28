@@ -1,7 +1,7 @@
 import { Demo } from '@/types';
 import axios from 'axios';
 
-const apiUrl='https://www.api.zidoo.online/api';
+const apiUrl='https://wh1389740.ispot.cc/api';
 export const ProductService = {
 
     getProductsSmall() {
