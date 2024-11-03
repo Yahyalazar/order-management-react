@@ -379,7 +379,7 @@ return (
             />
         </div>
         {/* <div className="p-col-12">
-            <Button label="Clear" className="p-button-secondary mt-2" onClick={clearDateRange} />
+            <Button label="Clear" className="mt-2 p-button-secondary" onClick={clearDateRange} />
         </div> */}
     </div>
 );
@@ -394,6 +394,7 @@ const formatDate = (value: string | number | Date) => {
         day: '2-digit',
     });
 };
+    
 
 const leftToolbarTemplate = () => {
     if(is_admin=="true"){
@@ -415,7 +416,7 @@ const leftToolbarTemplate = () => {
 const rightToolbarTemplate = () => {
     return (
         <React.Fragment>
-            {/* <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} chooseLabel="استيراد" className="ml-2 inline-block" /> */}
+            {/* <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} chooseLabel="استيراد" className="inline-block ml-2" /> */}
             <Button label="تصدير" icon="pi pi-upload" severity="help" onClick={exportSelectedCSV} disabled={!selectedOrders.length} />
         </React.Fragment>
     );
@@ -763,7 +764,7 @@ return (
     dataKey="id"
     paginator
     rows={10}
-    rowsPerPageOptions={[5, 10, 25,50,100,250,500,1000]}
+    rowsPerPageOptions={[5, 10, 25,50,100,250,500,1000,2500,5000]}
     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
     currentPageReportTemplate="عرض {first} إلى {last} من {totalRecords} طلبات"
     globalFilter={globalFilter}
@@ -808,7 +809,7 @@ return (
                     <InputText value={address} onChange={(e) => setAddress(e.target.value)} placeholder="عنوان" />
                 </div>
                 {orderItems.map((item, index) => (
-    <div key={index} className="field grid">
+    <div key={index} className="grid field">
         <div className="col-6">
             <p>حدد المنتج</p>
             <Dropdown
@@ -836,7 +837,7 @@ return (
             />
         </div>
         <div className="col-2">
-                                <Button icon="pi pi-trash" className="p-button-danger mt-2" onClick={() => removeOrderItem(index)} />
+                                <Button icon="pi pi-trash" className="mt-2 p-button-danger" onClick={() => removeOrderItem(index)} />
                             </div>
     </div>
 ))}
@@ -876,7 +877,7 @@ return (
                     <Button label="نعم" icon="pi pi-check" text onClick={deleteSelectedOrders} />
                 </>} onHide={() => setDeleteOrdersDialog(false)}>
                     <div className="confirmation-content">
-                        <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                        <i className="mr-3 pi pi-exclamation-triangle" style={{ fontSize: '2rem' }} />
                         <span>هل أنت متأكد أنك تريد حذف الطلبات المحددة؟</span>
                     </div>
                 </Dialog>

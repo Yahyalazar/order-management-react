@@ -6,7 +6,9 @@ import { Dialog } from 'primereact/dialog';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Cairo } from '@next/font/google';
-
+import { Calendar } from 'primereact/calendar';
+import { Chart } from 'primereact/chart';
+import { Knob } from 'primereact/knob';
 // Type for Product
 interface Product {
     id: number;
@@ -38,7 +40,7 @@ interface ApiResponse<T> {
 // Adding Cairo font
 const cairo = Cairo({
     subsets: ['latin'],
-    weight: ['600', '800'], // Use the weights you need
+    weight: ['600', '800'] // Use the weights you need
 });
 
 const Dashboard: React.FC = () => {
@@ -52,18 +54,52 @@ const Dashboard: React.FC = () => {
     const [productDialogVisible, setProductDialogVisible] = useState<boolean>(false);
     const [orderDialogVisible, setOrderDialogVisible] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
-    const [lenghtOrder,setLenghtOrder]=useState<number>(0);
-
+    const [lenghtOrder, setLenghtOrder] = useState<number>(0);
+    const [dateEnd, setDateEnd] = useState('');
+    const [perDelivery, setPerDelivery] = useState(0);
+    const [dateStart, setDateStart] = useState('');
+    const [chartData, setChartData] = useState({});
+     const [datast, setDatast] = useState<number[]>([0, 0, 0, 0]);
+    const [chartOptions, setChartOptions] = useState({});
     useEffect(() => {
+        const data = {
+            labels: ['إلغاء الطلبات', 'الطلبات المكتملة', 'الطلبات التسليم', 'مجموع الطلبات'],
+            datasets: [
+                {
+                    label: 'Sales',
+                    data:datast,
+                    backgroundColor: ['rgba(255, 159, 64, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(153, 102, 255, 0.2)'],
+                    borderColor: ['rgb(255, 159, 64)', 'rgb(75, 192, 192)', 'rgb(54, 162, 235)', 'rgb(153, 102, 255)'],
+                    borderWidth: 1
+                }
+            ]
+        };
+        const options = {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        };
+        data.datasets[0].data = datast;
+        setChartData(data);
+        setChartOptions(options);
         fetchData();
-    }, []);
-    const apiUrl ='https://wh1389740.ispot.cc/api';
+    }, [datast]);
+   const formatDate = (value: string | number | Date) => {
+    const date = new Date(value);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+    const apiUrl = 'https://wh1389740.ispot.cc/api';
     const fetchData = async () => {
         const token = localStorage.getItem('token');
         const config = {
             headers: {
-                Authorization: `Bearer ${token}`,
-            },
+                Authorization: `Bearer ${token}`
+            }
         };
 
         try {
@@ -77,7 +113,7 @@ const Dashboard: React.FC = () => {
             // Fetch Products
             const productsResponse: ApiResponse<Product[]> = await axios.get(`${apiUrl}/products`, config);
             const productsData = productsResponse.data;
-            const lenght=productsData.length
+            const lenght = productsData.length;
             setProducts(productsData.slice(0, 10));
             setTotalProducts(lenght);
 
@@ -88,9 +124,7 @@ const Dashboard: React.FC = () => {
             setOrders(ordersData.slice(0, 10));
 
             // Calculate total price of completed orders
-            const totalCompletedPrice = ordersData
-                .filter((order) => order.status === 'completed')
-                .reduce((acc, order) => acc + order.total_price, 0);
+            const totalCompletedPrice = ordersData.filter((order) => order.status === 'completed').reduce((acc, order) => acc + order.total_price, 0);
             setCompletedOrdersTotal(totalCompletedPrice);
 
             // Fetch Users
@@ -104,8 +138,31 @@ const Dashboard: React.FC = () => {
     const formatCurrency = (value: number) => {
         return value?.toLocaleString('en-US', {
             style: 'currency',
-            currency: 'USD',
+            currency: 'USD'
         });
+    };
+    const getStatus = async () => {
+     const token = localStorage.getItem('token');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        };
+
+        try {
+            const totalResponse: ApiResponse<any> = await axios.get(`${apiUrl}/order-stats?start_date=${formatDate(dateStart)}&end_date=${formatDate(dateEnd)}`, config);
+                setDatast([
+                Number(totalResponse.data.cancelled_orders),
+                Number(totalResponse.data.completed_orders),
+                Number(totalResponse.data.delivery_order),
+                Number(totalResponse.data.total_orders)
+            ]);
+            setPerDelivery(totalResponse.data.delivery_percentage)
+            console.log("good", formatDate(dateStart), formatDate(dateEnd), totalResponse,datast);
+        } catch (error) {
+            console.error('Error fetching total order:', error);
+        }
+
     };
 
     const viewProductDetails = (product: Product) => {
@@ -187,7 +244,7 @@ const Dashboard: React.FC = () => {
                 </Dialog>
 
                 {/* Order Details Dialog */}
-                <Dialog header="تفاصيل الطلب" visible={orderDialogVisible} style={{ width: '50vw' }} onHide={() => setOrderDialogVisible(false)} className='rtl-text'>
+                <Dialog header="تفاصيل الطلب" visible={orderDialogVisible} style={{ width: '50vw' }} onHide={() => setOrderDialogVisible(false)} className="rtl-text">
                     {selectedOrder && (
                         <div>
                             <h3>رمز الطلب: {selectedOrder.id}</h3>
@@ -197,7 +254,9 @@ const Dashboard: React.FC = () => {
                             <h4>المنتجات المطلوبة:</h4>
                             <ul>
                                 {selectedOrder.items?.map((item) => (
-                                    <li key={item.product.id}><h6>اسم المنتج: {item.product.name}</h6> - الكمية: {item.quantity}</li>
+                                    <li key={item.product.id}>
+                                        <h6>اسم المنتج: {item.product.name}</h6> - الكمية: {item.quantity}
+                                    </li>
                                 ))}
                             </ul>
                         </div>
@@ -211,13 +270,7 @@ const Dashboard: React.FC = () => {
                         <DataTable value={orders} rows={5} paginator responsiveLayout="scroll">
                             <Column field="id" header="الرمز" sortable style={{ width: '10%' }} />
                             <Column field="total_price" header="السعر" sortable style={{ width: '10%' }} body={(data: Order) => formatCurrency(data.total_price)} />
-                            <Column
-                                header="عرض"
-                                style={{ width: '15%' }}
-                                body={(rowData: Order) => (
-                                    <Button icon="pi pi-search" text onClick={() => viewOrderDetails(rowData)} />
-                                )}
-                            />
+                            <Column header="عرض" style={{ width: '15%' }} body={(rowData: Order) => <Button icon="pi pi-search" text onClick={() => viewOrderDetails(rowData)} />} />
                         </DataTable>
                     </div>
                 </div>
@@ -229,14 +282,31 @@ const Dashboard: React.FC = () => {
                         <DataTable value={products} rows={5} paginator responsiveLayout="scroll">
                             <Column field="name" header="الاسم" sortable style={{ width: '10%' }} />
                             <Column field="price" header="السعر" sortable style={{ width: '10%' }} body={(data: Product) => formatCurrency(data.price)} />
-                            <Column
-                                header="عرض"
-                                style={{ width: '10%' }}
-                                body={(rowData: Product) => (
-                                    <Button icon="pi pi-search" text onClick={() => viewProductDetails(rowData)} />
-                                )}
-                            />
+                            <Column header="عرض" style={{ width: '10%' }} body={(rowData: Product) => <Button icon="pi pi-search" text onClick={() => viewProductDetails(rowData)} />} />
                         </DataTable>
+                    </div>
+                </div>
+                <div className="col xl:col">
+                    <div className="text-center card">
+                        <h5>الا حصائيات</h5>
+                        <div className="flex flex-wrap gap-3 justify-content-center">
+
+                            <Calendar placeholder='تاريخ البدء' showButtonBar value={dateStart} onChange={(e) => setDateStart(e.value)} />
+                            <Calendar placeholder='نهاية التاريخ' showButtonBar value={dateEnd} onChange={(e) => setDateEnd(e.value)} /> <Button onClick={getStatus} icon="pi pi-search" rounded severity="success" />
+                        </div>
+                        <div className="grid mt-5 ">
+                            <div className=" col-11 xl:col-4">
+                                <div className="card">
+                                    <h5>نسبة التسليم</h5>
+                                    <Knob value={perDelivery} onChange={(e) => setPerDelivery(e.value)} />
+                                </div>
+                            </div>
+                            <div className=" col-10 xl:col-8">
+                                <div className=" card">
+                                    <Chart type="bar" data={chartData} options={chartOptions} />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

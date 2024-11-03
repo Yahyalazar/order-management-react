@@ -301,8 +301,8 @@ const Crud = () => {
         return (
             <React.Fragment>
                 <div className="my-2">
-                    <Button label="جديد" icon="pi pi-plus" severity="success" className=" ml-2" onClick={openNew} />
-                    <Button label="حذف" icon="pi pi-trash" severity="danger" className=" mr-2" onClick={confirmDeleteSelected} disabled={!selectedProducts || !(selectedProducts as any).length} />
+                    <Button label="جديد" icon="pi pi-plus" severity="success" className="ml-2 " onClick={openNew} />
+                    <Button label="حذف" icon="pi pi-trash" severity="danger" className="mr-2 " onClick={confirmDeleteSelected} disabled={!selectedProducts || !(selectedProducts as any).length} />
                 </div>
             </React.Fragment>
         );
@@ -310,7 +310,7 @@ const Crud = () => {
             return(
             <React.Fragment>
                 <div className="my-2">
-                    <Button label="جديد" icon="pi pi-plus" severity="success" className=" ml-2" onClick={openNew} />
+                    <Button label="جديد" icon="pi pi-plus" severity="success" className="ml-2 " onClick={openNew} />
                 </div>
             </React.Fragment>
             )
@@ -320,8 +320,8 @@ const Crud = () => {
     const rightToolbarTemplate = () => {
         return (
             <React.Fragment>
-                <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} chooseLabel="استيراد" className="ml-2 inline-block" />
-                <Button label="تصدير" icon="pi pi-upload" severity="help" onClick={exportCSV} className="mr-2 inline-block"/>
+                <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} chooseLabel="استيراد" className="inline-block ml-2" />
+                <Button label="تصدير" icon="pi pi-upload" severity="help" onClick={exportCSV} className="inline-block mr-2"/>
             </React.Fragment>
         );
     };
@@ -492,7 +492,7 @@ const Crud = () => {
                         </div>
 
 
-                        <div className="formgrid grid">
+                        <div className="grid formgrid">
                             <div className="field col">
                                 <label htmlFor="price">السعر</label>
                                 <InputNumber id="price" value={product.price} onValueChange={(e) => onInputNumberChange(e, 'price')} mode="currency" currency="USD" locale="us-dollar" min={0} />
@@ -506,14 +506,14 @@ const Crud = () => {
 
                     <Dialog visible={deleteProductDialog} style={{ width: '450px' }} header="تأكيد" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
                         <div className="confirmation-content">
-                            <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                            <i className="mr-3 pi pi-exclamation-triangle" style={{ fontSize: '2rem' }} />
                             {product && <span>هل أنت متأكد من أنك تريد حذف <b>{product.name}</b>؟</span>}
                         </div>
                     </Dialog>
 
                     <Dialog visible={deleteProductsDialog} style={{ width: '450px' }} header="تأكيد" modal footer={deleteProductsDialogFooter} onHide={hideDeleteProductsDialog}>
                         <div className="confirmation-content">
-                            <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                            <i className="mr-3 pi pi-exclamation-triangle" style={{ fontSize: '2rem' }} />
                             {product && <span>هل أنت متأكد من أنك تريد حذف المنتجات المحددة؟</span>}
                         </div>
                     </Dialog>
