@@ -55,9 +55,9 @@ const Dashboard: React.FC = () => {
     const [orderDialogVisible, setOrderDialogVisible] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
     const [lenghtOrder, setLenghtOrder] = useState<number>(0);
-    const [dateEnd, setDateEnd] = useState('');
+    const [dateEnd, setDateEnd] =useState<Date | null>(null);
     const [perDelivery, setPerDelivery] = useState(0);
-    const [dateStart, setDateStart] = useState('');
+    const [dateStart, setDateStart] =useState<Date | null>(null);
     const [chartData, setChartData] = useState({});
      const [datast, setDatast] = useState<number[]>([0, 0, 0, 0]);
     const [chartOptions, setChartOptions] = useState({});
@@ -150,7 +150,7 @@ const Dashboard: React.FC = () => {
         };
 
         try {
-            const totalResponse: ApiResponse<any> = await axios.get(`${apiUrl}/order-stats?start_date=${formatDate(dateStart)}&end_date=${formatDate(dateEnd)}`, config);
+            const totalResponse: ApiResponse<any> = await axios.get(`${apiUrl}/order-stats?start_date=${dateStart ? formatDate(dateStart) : ''}&end_date=${dateEnd ? formatDate(dateEnd) : ''}`, config);
                 setDatast([
                 Number(totalResponse.data.cancelled_orders),
                 Number(totalResponse.data.completed_orders),
@@ -158,7 +158,7 @@ const Dashboard: React.FC = () => {
                 Number(totalResponse.data.total_orders)
             ]);
             setPerDelivery(totalResponse.data.delivery_percentage)
-            console.log("good", formatDate(dateStart), formatDate(dateEnd), totalResponse,datast);
+
         } catch (error) {
             console.error('Error fetching total order:', error);
         }
@@ -291,8 +291,8 @@ const Dashboard: React.FC = () => {
                         <h5>الا حصائيات</h5>
                         <div className="flex flex-wrap gap-3 justify-content-center">
 
-                            <Calendar placeholder='تاريخ البدء' showButtonBar value={dateStart} onChange={(e) => setDateStart(e.value)} />
-                            <Calendar placeholder='نهاية التاريخ' showButtonBar value={dateEnd} onChange={(e) => setDateEnd(e.value)} /> <Button onClick={getStatus} icon="pi pi-search" rounded severity="success" />
+                            <Calendar placeholder="start date"  value={dateStart} onChange={(e) => setDateStart(e.value ?? null)} />
+                            <Calendar placeholder=" end date"  value={dateEnd} onChange={(e) => setDateEnd(e.value ?? null)} /> <Button onClick={getStatus} icon="pi pi-search" rounded severity="success" />
                         </div>
                         <div className="grid mt-5 ">
                             <div className=" col-11 xl:col-4">
