@@ -63,7 +63,7 @@ const Dashboard: React.FC = () => {
     const [chartOptions, setChartOptions] = useState({});
     useEffect(() => {
         const data = {
-            labels: ['إلغاء الطلبات', 'الطلبات المكتملة', 'الطلبات الشحن', 'مجموع الطلبات'],
+            labels: ['إلغاء الطلبات', 'الطلبات المكتملة', 'الطلبات الشحن ', 'مجموع الطلبات'],
             datasets: [
                 {
                     label: 'Sales',
