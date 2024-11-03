@@ -63,7 +63,7 @@ const Dashboard: React.FC = () => {
     const [chartOptions, setChartOptions] = useState({});
     useEffect(() => {
         const data = {
-            labels: ['إلغاء الطلبات', 'الطلبات المكتملة', 'الطلبات التسليم', 'مجموع الطلبات'],
+            labels: ['إلغاء الطلبات', 'الطلبات المكتملة', 'الطلبات الشحن', 'مجموع الطلبات'],
             datasets: [
                 {
                     label: 'Sales',
@@ -205,7 +205,7 @@ const Dashboard: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                <div className="col-12 lg:col-6 xl:col-3">
+              <div className="col-12 lg:col-6 xl:col-3">
                     <div className="mb-0 card">
                         <div className="flex mb-3 justify-content-between">
                             <div>
@@ -263,29 +263,6 @@ const Dashboard: React.FC = () => {
                     )}
                 </Dialog>
 
-                {/* Table for Last 10 Orders */}
-                <div className="col-12 xl:col-6">
-                    <div className="card">
-                        <h5>الطلبات الأخيرة</h5>
-                        <DataTable value={orders} rows={5} paginator responsiveLayout="scroll">
-                            <Column field="id" header="الرمز" sortable style={{ width: '10%' }} />
-                            <Column field="total_price" header="السعر" sortable style={{ width: '10%' }} body={(data: Order) => formatCurrency(data.total_price)} />
-                            <Column header="عرض" style={{ width: '15%' }} body={(rowData: Order) => <Button icon="pi pi-search" text onClick={() => viewOrderDetails(rowData)} />} />
-                        </DataTable>
-                    </div>
-                </div>
-
-                {/* Table for Last 10 Products */}
-                <div className="col-12 xl:col-6">
-                    <div className="card">
-                        <h5>المنتجات الأخيرة</h5>
-                        <DataTable value={products} rows={5} paginator responsiveLayout="scroll">
-                            <Column field="name" header="الاسم" sortable style={{ width: '10%' }} />
-                            <Column field="price" header="السعر" sortable style={{ width: '10%' }} body={(data: Product) => formatCurrency(data.price)} />
-                            <Column header="عرض" style={{ width: '10%' }} body={(rowData: Product) => <Button icon="pi pi-search" text onClick={() => viewProductDetails(rowData)} />} />
-                        </DataTable>
-                    </div>
-                </div>
                 <div className="col xl:col">
                     <div className="text-center card">
                         <h5>الا حصائيات</h5>
