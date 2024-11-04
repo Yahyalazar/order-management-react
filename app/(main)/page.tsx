@@ -54,6 +54,8 @@ const Dashboard: React.FC = () => {
     const [productDialogVisible, setProductDialogVisible] = useState<boolean>(false);
     const [orderDialogVisible, setOrderDialogVisible] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
+    const [nbCompletedOrder, setNbCompletedOrder] = useState<number>(0);
+        const [nbCancledOrder, setNbCancledOrderr] = useState<number>(0);
     const [lenghtOrder, setLenghtOrder] = useState<number>(0);
     const [dateEnd, setDateEnd] =useState<Date | null>(null);
     const [perDelivery, setPerDelivery] = useState(0);
@@ -103,12 +105,8 @@ const Dashboard: React.FC = () => {
             }
         };
 
-        try {
-            const totalResponse: ApiResponse<number> = await axios.get(`${apiUrl}/countOrder`, config);
-            setTotalOrder(totalResponse.data);
-        } catch (error) {
-            console.error('Error fetching total order:', error);
-        }
+
+
 
         try {
             // Fetch Products
@@ -128,9 +126,13 @@ const Dashboard: React.FC = () => {
             const totalCompletedPrice = ordersData.filter((order) => order.status === 'completed').reduce((acc, order) => acc + order.total_price, 0);
             setCompletedOrdersTotal(totalCompletedPrice);
 
-            // Fetch Users
-            const usersResponse = await axios.get(`${apiUrl}/deliveredOrder`, config);
-            setUsersCount(usersResponse.data);
+
+            const totalResponse: ApiResponse<any> = await axios.get(`${apiUrl}/ordersSummary`, config);
+            setNbCompletedOrder(totalResponse.data.completed_orders);
+            setNbCancledOrderr(totalResponse.data.cancelled_orders);
+            setTotalOrder(totalResponse.data.completed_total_revenue);
+            setUsersCount(totalResponse.data.delivered_total_revenue);
+            console.log(totalResponse.data)
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -181,7 +183,7 @@ const Dashboard: React.FC = () => {
         <div className={cairo.className}>
             <div className="grid">
                 {/* Cards Section */}
-                <div className="col-12 lg:col-6 xl:col-3">
+                <div className="col-12 lg:col-6 xl:col-10'">
                     <div className="mb-0 card">
                         <div className="flex mb-3 justify-content-between">
                             <div>
@@ -194,7 +196,7 @@ const Dashboard: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                <div className="col-12 lg:col-6 xl:col-3">
+                <div className="col-12 lg:col-6 xl:col-10'">
                     <div className="mb-0 card">
                         <div className="flex mb-3 justify-content-between">
                             <div>
@@ -207,7 +209,7 @@ const Dashboard: React.FC = () => {
                         </div>
                     </div>
                 </div>
-              <div className="col-12 lg:col-6 xl:col-3">
+              <div className="col-12 lg:col-6 xl:col-10'">
                     <div className="mb-0 card">
                         <div className="flex mb-3 justify-content-between">
                             <div>
@@ -220,7 +222,7 @@ const Dashboard: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                <div className="col-12 lg:col-6 xl:col-3">
+                <div className="col-12 lg:col-6 xl:col-10'">
                     <div className="mb-0 card">
                         <div className="flex mb-3 justify-content-between">
                             <div>
@@ -229,6 +231,32 @@ const Dashboard: React.FC = () => {
                             </div>
                             <div className="flex bg-purple-100 align-items-center justify-content-center border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
                                 <i className="text-xl text-purple-500 pi pi-dollar" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-12 lg:col-6 xl:col-10'">
+                    <div className="mb-0 card">
+                        <div className="flex mb-3 justify-content-between">
+                            <div>
+                                <span className="block mb-3 font-medium text-500"> عدد الطلبات المكتملة </span>
+                                <div className="text-xl font-medium text-900">{nbCompletedOrder}</div>
+                            </div>
+                            <div className="flex bg-green-100 align-items-center justify-content-center border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
+                                <i className="text-xl text-green-500 pi pi-box" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-12 lg:col-6 xl:col-10'">
+                    <div className="mb-0 card">
+                        <div className="flex mb-3 justify-content-between">
+                            <div>
+                                <span className="block mb-3 font-medium text-500">عدد الطلبات الملغاه  </span>
+                                <div className="text-xl font-medium text-900">{nbCancledOrder}</div>
+                            </div>
+                            <div className="flex bg-red-100 align-items-center justify-content-center border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
+                                <i className="text-xl text-red-500 pi pi-box" />
                             </div>
                         </div>
                     </div>
