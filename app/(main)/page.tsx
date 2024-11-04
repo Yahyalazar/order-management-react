@@ -57,6 +57,7 @@ const Dashboard: React.FC = () => {
     const [lenghtOrder, setLenghtOrder] = useState<number>(0);
     const [dateEnd, setDateEnd] =useState<Date | null>(null);
     const [perDelivery, setPerDelivery] = useState(0);
+     const [totalCmptRange, setTotalCmptRange] = useState(0);
     const [dateStart, setDateStart] =useState<Date | null>(null);
     const [chartData, setChartData] = useState({});
      const [datast, setDatast] = useState<number[]>([0, 0, 0, 0]);
@@ -157,7 +158,8 @@ const Dashboard: React.FC = () => {
                 Number(totalResponse.data.delivery_order),
                 Number(totalResponse.data.total_orders)
             ]);
-            setPerDelivery(totalResponse.data.delivery_percentage)
+            setPerDelivery(totalResponse.data.delivery_percentage);
+            setTotalCmptRange(totalResponse.data.total_revenue);
 
         } catch (error) {
             console.error('Error fetching total order:', error);
@@ -275,7 +277,19 @@ const Dashboard: React.FC = () => {
                             <div className=" col-11 xl:col-4">
                                 <div className="card">
                                     <h5>نسبة التسليم</h5>
-                                    <Knob value={perDelivery} onChange={(e) => setPerDelivery(e.value)} />
+                                    <Knob value={perDelivery}  />
+                                </div>
+                                 <div className="card">
+                                    <h5> السعر الإجمالي</h5>
+
+                                    <div className="mb-0 card">
+                        <div className="flex mb-3 justify-content-center">
+                            <div>
+                                <div className="text-xl font-medium text-900">${totalCmptRange}</div>
+                            </div>
+
+                        </div>
+                    </div>
                                 </div>
                             </div>
                             <div className=" col-10 xl:col-8">
