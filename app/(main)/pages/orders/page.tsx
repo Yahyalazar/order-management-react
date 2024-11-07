@@ -394,7 +394,7 @@ const formatDate = (value: string | number | Date) => {
         day: '2-digit',
     });
 };
-    
+
 
 const leftToolbarTemplate = () => {
     if(is_admin=="true"){
@@ -418,6 +418,95 @@ const rightToolbarTemplate = () => {
         <React.Fragment>
             {/* <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} chooseLabel="استيراد" className="inline-block ml-2" /> */}
             <Button label="تصدير" icon="pi pi-upload" severity="help" onClick={exportSelectedCSV} disabled={!selectedOrders.length} />
+        </React.Fragment>
+    );
+
+};
+  const bulkUpdateStatus = async (orderIds:any, newStatus:any) => {
+        try {
+            // Define the request body
+            const requestBody = {
+                order_ids: orderIds,
+                status: newStatus,
+            };
+
+            // Send POST request to the backend
+            const response = await axios.post('/api/orders/bulk-update-status', requestBody);
+
+            // Handle successful response
+            if (response.status === 200) {
+                console.log("Orders updated successfully:", response.data);
+                alert("Orders updated successfully!");
+            } else {
+                console.error("Failed to update orders:", response.status);
+            }
+        } catch (error) {
+            // Handle errors
+            console.error("An error occurred while updating order statuses:", error);
+        }
+  };
+    const  handleBulkStatusUpdate = async (newStatus:string) => {
+        if (selectedOrders.length === 0) {
+            alert("Please select orders first.");
+            return;
+        } const token = localStorage.getItem('token');
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            };
+          try {
+        // Loop through each selected order and send delete requests
+        if (selectedOrders && selectedOrders.length > 0) {
+            for (const selectedOrder of selectedOrders) {
+
+
+            // Update the order status on the backend
+            await axios.put(`${apiUrl}/orders/${selectedOrder.id}`, { status: newStatus }, config);
+
+            // Update the local state
+
+            }
+
+            // Remove the deleted orders from the frontend state
+            fetchdata();
+            setSelectedOrders([]); // Clear the selection after deletion
+
+            setDeleteOrdersDialog(false);
+            toast.current?.show({
+                severity: 'success',
+                summary: 'تم بنجاح',
+                detail: 'تم تحديت الطلبات بنجاح',
+                life: 3000
+            });
+        }
+    } catch (error) {
+        console.error('Error deleting orders:', error);
+        toast.current?.show({
+            severity: 'error',
+            summary: 'خطأ',
+ detail: 'فشل في تحديت الطلبات',
+            life: 3000
+        });
+    }
+
+        const orderIds = selectedOrders.map(order => order.id);  // Extracting order IDs
+        console.log(orderIds);
+        // Call the bulkUpdateStatus function
+        bulkUpdateStatus(orderIds, newStatus);
+    };
+    const centerToolbarTemplate = () => {
+    return (
+        <React.Fragment>
+            {/* <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} chooseLabel="استيراد" className="inline-block ml-2" /> */}
+<Dropdown
+
+            options={statuses}
+                onChange={(e) => handleBulkStatusUpdate(e.value)}
+            placeholder="اختر الحالة"
+            className="p-column-filter"
+            //showClear
+        />
         </React.Fragment>
     );
 
@@ -753,7 +842,7 @@ return (
         <div className="col-12" dir='rtl'>
             <div className="card">
                 <Toast ref={toast} />
-                <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
+                <Toolbar className="mb-4" left={leftToolbarTemplate} center={centerToolbarTemplate}   right={rightToolbarTemplate}></Toolbar>
 
                 <DataTable
 
@@ -764,7 +853,7 @@ return (
     dataKey="id"
     paginator
     rows={10}
-    rowsPerPageOptions={[5, 10, 25,50,100,250,500,1000,2500,5000]}
+    rowsPerPageOptions={[5, 10, 25,50,100,250,500,1000,2500,5000,10000]}
     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
     currentPageReportTemplate="عرض {first} إلى {last} من {totalRecords} طلبات"
     globalFilter={globalFilter}
