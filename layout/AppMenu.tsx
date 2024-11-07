@@ -19,6 +19,8 @@ const AppMenu = () => {
             const token = localStorage.getItem('token');
 
             if (token) {
+           
+                localStorage.clear();
                 // Make logout API request
                 await axios.post('https://wh1389740.ispot.cc/api/logout', {}, {
                     headers: {
@@ -26,9 +28,7 @@ const AppMenu = () => {
                     },
                 });
 
-                // Clear token and user data from localStorage
-                localStorage.removeItem('token');
-                localStorage.removeItem('is_admin');
+
 
                 // Redirect to login page
                 router.push('/auth/login');
