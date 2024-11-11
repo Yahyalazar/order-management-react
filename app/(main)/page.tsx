@@ -126,11 +126,12 @@ const Dashboard: React.FC = () => {
             const totalCompletedPrice = ordersData.filter((order) => order.status === 'completed').reduce((acc, order) => acc + order.total_price, 0);
             setCompletedOrdersTotal(totalCompletedPrice);
 
-
+    const is_admin= localStorage.getItem('is_admin');
             const totalResponse: ApiResponse<any> = await axios.get(`${apiUrl}/ordersSummary`, config);
             setNbCompletedOrder(totalResponse.data.completed_orders);
             setNbCancledOrderr(totalResponse.data.cancelled_orders);
-            setTotalOrder(totalResponse.data.completed_total_revenue);
+
+            if (is_admin == 'true') { setTotalOrder(totalResponse.data.completed_total_revenue) };
             setUsersCount(totalResponse.data.delivered_total_revenue);
             console.log(totalResponse.data)
         } catch (error) {
