@@ -9,6 +9,7 @@ import { Cairo } from '@next/font/google';
 import { Calendar } from 'primereact/calendar';
 import { Chart } from 'primereact/chart';
 import { Knob } from 'primereact/knob';
+import { Dropdown } from 'primereact/dropdown';
 // Type for Product
 interface Product {
     id: number;
@@ -55,22 +56,30 @@ const Dashboard: React.FC = () => {
     const [orderDialogVisible, setOrderDialogVisible] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
     const [nbCompletedOrder, setNbCompletedOrder] = useState<number>(0);
-        const [nbCancledOrder, setNbCancledOrderr] = useState<number>(0);
+    const [nbCancledOrder, setNbCancledOrderr] = useState<number>(0);
     const [lenghtOrder, setLenghtOrder] = useState<number>(0);
-    const [dateEnd, setDateEnd] =useState<Date | null>(null);
+        const [selectedProductId, setSelectedProductId] = useState<number>(0);
+    const [dateEnd, setDateEnd] = useState<Date | null>(null);
     const [perDelivery, setPerDelivery] = useState(0);
-     const [totalCmptRange, setTotalCmptRange] = useState(0);
-    const [dateStart, setDateStart] =useState<Date | null>(null);
+    const [proTotalDilevery, setProTotalDilevery] = useState(0);
+    const [proTotalCompleted, setProTotalCompleted] = useState(0);
+    const [proPerDilevery, setProPerDilevery] = useState(0);
+    const [totalCmptRange, setTotalCmptRange] = useState(0);
+    const [dateStart, setDateStart] = useState<Date | null>(null);
     const [chartData, setChartData] = useState({});
-     const [datast, setDatast] = useState<number[]>([0, 0, 0, 0]);
+    const [datast, setDatast] = useState<number[]>([0, 0, 0, 0]);
     const [chartOptions, setChartOptions] = useState({});
+     const [allProducts, setAllPrducts] = useState([
+        { label: 'حدد المنتج', value: 'حدد المنتج' },
+
+    ]);
     useEffect(() => {
         const data = {
             labels: ['إلغاء الطلبات', 'الطلبات المكتملة', 'الطلبات الشحن ', 'مجموع الطلبات'],
             datasets: [
                 {
                     label: 'Sales',
-                    data:datast,
+                    data: datast,
                     backgroundColor: ['rgba(255, 159, 64, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(153, 102, 255, 0.2)'],
                     borderColor: ['rgb(255, 159, 64)', 'rgb(75, 192, 192)', 'rgb(54, 162, 235)', 'rgb(153, 102, 255)'],
                     borderWidth: 1
@@ -89,13 +98,13 @@ const Dashboard: React.FC = () => {
         setChartOptions(options);
         fetchData();
     }, [datast]);
-   const formatDate = (value: string | number | Date) => {
-    const date = new Date(value);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-};
+    const formatDate = (value: string | number | Date) => {
+        const date = new Date(value);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
     const apiUrl = 'https://wh1389740.ispot.cc/api';
     const fetchData = async () => {
         const token = localStorage.getItem('token');
@@ -105,13 +114,13 @@ const Dashboard: React.FC = () => {
             }
         };
 
-
-
-
         try {
             // Fetch Products
             const productsResponse: ApiResponse<Product[]> = await axios.get(`${apiUrl}/products`, config);
             const productsData = productsResponse.data;
+   productsData.forEach(function (value:any) {
+                    allProducts.push({ label: value.name, value: value.id });
+});
             const lenght = productsData.length;
             setProducts(productsData.slice(0, 10));
             setTotalProducts(lenght);
@@ -126,14 +135,16 @@ const Dashboard: React.FC = () => {
             const totalCompletedPrice = ordersData.filter((order) => order.status === 'completed').reduce((acc, order) => acc + order.total_price, 0);
             setCompletedOrdersTotal(totalCompletedPrice);
 
-    const is_admin= localStorage.getItem('is_admin');
+            const is_admin = localStorage.getItem('is_admin');
             const totalResponse: ApiResponse<any> = await axios.get(`${apiUrl}/ordersSummary`, config);
             setNbCompletedOrder(totalResponse.data.completed_orders);
             setNbCancledOrderr(totalResponse.data.cancelled_orders);
 
-            if (is_admin == 'true') { setTotalOrder(totalResponse.data.completed_total_revenue) };
+            if (is_admin == 'true') {
+                setTotalOrder(totalResponse.data.completed_total_revenue);
+            }
             setUsersCount(totalResponse.data.delivered_total_revenue);
-            console.log(totalResponse.data)
+            console.log(totalResponse.data);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -146,7 +157,7 @@ const Dashboard: React.FC = () => {
         });
     };
     const getStatus = async () => {
-     const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token');
         const config = {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -155,21 +166,36 @@ const Dashboard: React.FC = () => {
 
         try {
             const totalResponse: ApiResponse<any> = await axios.get(`${apiUrl}/order-stats?start_date=${dateStart ? formatDate(dateStart) : ''}&end_date=${dateEnd ? formatDate(dateEnd) : ''}`, config);
-                setDatast([
-                Number(totalResponse.data.cancelled_orders),
-                Number(totalResponse.data.completed_orders),
-                Number(totalResponse.data.delivery_order),
-                Number(totalResponse.data.total_orders)
-            ]);
+            setDatast([Number(totalResponse.data.cancelled_orders), Number(totalResponse.data.completed_orders), Number(totalResponse.data.delivery_order), Number(totalResponse.data.total_orders)]);
             setPerDelivery(totalResponse.data.delivery_percentage);
             setTotalCmptRange(totalResponse.data.total_revenue);
-
         } catch (error) {
             console.error('Error fetching total order:', error);
         }
+    };
+    const getStatProd = async (id:any) => {
+        const token = localStorage.getItem('token');
+           const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+               }
+
+        };
+try {
+            const response = await axios.get(`${apiUrl}/product/delivery-percentage?product_id=${selectedProductId}&start_date=${dateStart ? formatDate(dateStart) : ''}&end_date=${dateEnd ? formatDate(dateEnd) : ''}`, config);
+    console.log(response);
+            setProPerDilevery(response.data.delivery_percentage);
+            setProTotalCompleted(response.data.total_orders);
+            setProTotalDilevery(response.data.delivered_orders);
+        } catch (error) {
+            console.error('Error fetching orders:', error);
+        }
+}
+    const selectproduct = async (id:any) => {
+        setSelectedProductId(id);
+
 
     };
-
     const viewProductDetails = (product: Product) => {
         setSelectedProduct(product);
         setProductDialogVisible(true);
@@ -184,7 +210,7 @@ const Dashboard: React.FC = () => {
         <div className={cairo.className}>
             <div className="grid">
                 {/* Cards Section */}
-                <div className="col-12 lg:col-6 xl:col-10'">
+                <div className="col-12 lg:col-4 xl:col-4'">
                     <div className="mb-0 card">
                         <div className="flex mb-3 justify-content-between">
                             <div>
@@ -197,7 +223,7 @@ const Dashboard: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                <div className="col-12 lg:col-6 xl:col-10'">
+                <div className="col-12 lg:col-4 xl:col-4'">
                     <div className="mb-0 card">
                         <div className="flex mb-3 justify-content-between">
                             <div>
@@ -210,7 +236,7 @@ const Dashboard: React.FC = () => {
                         </div>
                     </div>
                 </div>
-              <div className="col-12 lg:col-6 xl:col-10'">
+                <div className="col-12 lg:col-4 xl:col-4'">
                     <div className="mb-0 card">
                         <div className="flex mb-3 justify-content-between">
                             <div>
@@ -223,7 +249,7 @@ const Dashboard: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                <div className="col-12 lg:col-6 xl:col-10'">
+                <div className="col-12 lg:col-4 xl:col-4'">
                     <div className="mb-0 card">
                         <div className="flex mb-3 justify-content-between">
                             <div>
@@ -236,7 +262,7 @@ const Dashboard: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                <div className="col-12 lg:col-6 xl:col-10'">
+                <div className="col-12 lg:col-4 xl:col-4'">
                     <div className="mb-0 card">
                         <div className="flex mb-3 justify-content-between">
                             <div>
@@ -249,11 +275,11 @@ const Dashboard: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                <div className="col-12 lg:col-6 xl:col-10'">
+                <div className="col-12 lg:col-4 xl:col-4'">
                     <div className="mb-0 card">
                         <div className="flex mb-3 justify-content-between">
                             <div>
-                                <span className="block mb-3 font-medium text-500">عدد الطلبات الملغاه  </span>
+                                <span className="block mb-3 font-medium text-500">عدد الطلبات الملغاه </span>
                                 <div className="text-xl font-medium text-900">{nbCancledOrder}</div>
                             </div>
                             <div className="flex bg-red-100 align-items-center justify-content-center border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
@@ -294,36 +320,97 @@ const Dashboard: React.FC = () => {
                     )}
                 </Dialog>
 
-                <div className="col xl:col">
+                <div className="col-12">
                     <div className="text-center card">
-                        <h5>الا حصائيات</h5>
+                        <h5> احصائيات الطلبات </h5>
                         <div className="flex flex-wrap gap-3 justify-content-center">
-
-                            <Calendar placeholder="start date"  value={dateStart} onChange={(e) => setDateStart(e.value ?? null)} />
-                            <Calendar placeholder=" end date"  value={dateEnd} onChange={(e) => setDateEnd(e.value ?? null)} /> <Button onClick={getStatus} icon="pi pi-search" rounded severity="success" />
+                            <Calendar placeholder="start date" value={dateStart} onChange={(e) => setDateStart(e.value ?? null)} />
+                            <Calendar placeholder=" end date" value={dateEnd} onChange={(e) => setDateEnd(e.value ?? null)} /> <Button onClick={getStatus} icon="pi pi-search" rounded severity="success" />
                         </div>
-                        <div className="grid mt-5 ">
-                            <div className=" col-11 xl:col-4">
+                        <div className="grid mt-5 overflow-scroll">
+                            <div className=" col-12 xl:col-4">
                                 <div className="card">
                                     <h5>نسبة التسليم</h5>
-                                    <Knob value={perDelivery}  />
+                                    <Knob value={perDelivery} />
                                 </div>
-                                 <div className="card">
+                                <div className="card">
                                     <h5> السعر الإجمالي</h5>
 
                                     <div className="mb-0 card">
-                        <div className="flex mb-3 justify-content-center">
-                            <div>
-                                <div className="text-xl font-medium text-900">${totalCmptRange}</div>
-                            </div>
-
-                        </div>
-                    </div>
+                                        <div className="flex mb-3 justify-content-center">
+                                            <div>
+                                                <div className="text-xl font-medium text-900">${totalCmptRange}</div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div className=" col-10 xl:col-8">
+                            <div className=" col-12 xl:col-8">
                                 <div className=" card">
                                     <Chart type="bar" data={chartData} options={chartOptions} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-12">
+                    <div className="card">
+                        <h5 className="text-center"> احصائيات المنتجات </h5>
+                        <div className="flex flex-wrap gap-3 justify-content-center">
+                            <Calendar placeholder="start date" value={dateStart} onChange={(e) => setDateStart(e.value ?? null)} />
+                            <Calendar placeholder=" end date" value={dateEnd} onChange={(e) => setDateEnd(e.value ?? null)} />
+                        <Dropdown
+
+                options={allProducts}
+onChange={(e)=>{selectproduct(e.value)}}
+                placeholder="اختر المنتج"
+                className="p-column-filter"
+                //showClear
+            />
+                            <Button onClick={getStatProd} icon="pi pi-search" rounded severity="success" />
+
+                        </div>
+                        <div className="grid">
+                            <div className="xl:col-4 col-12">
+                                <div className="card">
+                                    <div className="flex mb-3 justify-content-between">
+                                        <div>
+                                            <span className="block mb-3 font-medium text-500">مجموع الطلبات</span>
+                                            <div className="text-xl font-medium text-900">{proTotalCompleted}</div>
+                                        </div>
+                                        <div className="flex bg-purple-100 align-items-center justify-content-center border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
+                                            <i className="text-xl text-purple-500 pi pi-box" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="xl:col-4 col-12">
+                                <div className="card">
+                                    <div className="flex mb-3 justify-content-between">
+                                        <div>
+                                            <span className="block mb-3 font-medium text-500"> الطلبات المُسلَّمة </span>
+                                            <div className="text-xl font-medium text-900">{proTotalDilevery}</div>
+                                        </div>
+                                        <div className="flex bg-blue-100 align-items-center justify-content-center border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
+                                            <i className="text-xl text-blue-500 pi pi-shopping-bag" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="xl:col-4 col-12">
+                                <div className="card">
+                                    <div className="flex mb-3 justify-content-between">
+                                        <div>
+                                            <span className="block mb-3 font-medium text-500"> نسبة التسليم </span>
+                                            <div className="text-xl font-medium text-900">
+                                                <Knob value={proPerDilevery} />
+                                            </div>
+                                        </div>
+                                        <div className="flex bg-green-100 align-items-center justify-content-center border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
+                                            <i className="text-xl text-green-500 pi pi-percentage " />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

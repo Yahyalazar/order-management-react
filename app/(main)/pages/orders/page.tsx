@@ -768,25 +768,7 @@ const OrderPage = () => {
             );
         }
     };
-  const cloadData = async (id: any) => {
-     const token = localStorage.getItem('token');
-        const config = {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        };
-        try {
-            const response = await axios.get(`${apiUrl}/product/delivery-percentage?product_id=${id}`, config);
 
-
-            setProPerDilevery(response.data.delivery_percentage);
-            setProTotalCompleted(response.data.total_orders);
-            setProTotalDilevery(response.data.delivered_orders);
-        } catch (error) {
-            console.error('Error fetching orders:', error);
-        }
-
-}
     const header = (
         <div className="flex justify-content-between">
             <h5 className="m-2">إدارة الطلبات</h5>
@@ -808,59 +790,7 @@ const OrderPage = () => {
 
     return (
         <div className="grid Crud-demo" dir="rtl">
-            <div className="col-12">
-                <div className="grid card">
-                       <div className="col-12">
-                        <div className="card">
- <Dropdown
 
-                options={allProducts}
-onChange={(e)=>{cloadData(e.value)}}
-                placeholder="اختر المنتج"
-                className="p-column-filter"
-                //showClear
-            />
-                        </div>
-                    </div>
-                    <div className="xl:col-4 col-12">
-                        <div className="card">
-                            <div className="flex mb-3 justify-content-between">
-                                <div>
-                                    <span className="block mb-3 font-medium text-500">مجموع الطلبات</span>
-                                    <div className="text-xl font-medium text-900">{ proTotalCompleted }</div>
-                                </div>
-                                <div className="flex bg-purple-100 align-items-center justify-content-center border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
-                                    <i className="text-xl text-purple-500 pi pi-box" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="xl:col-4 col-12">
-                        <div className="card"><div className="flex mb-3 justify-content-between">
-                                <div>
-                                    <span className="block mb-3 font-medium text-500"> الطلبات المُسلَّمة </span>
-                                    <div className="text-xl font-medium text-900">{ proTotalDilevery }</div>
-                                </div>
-                                <div className="flex bg-blue-100 align-items-center justify-content-center border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
-                                    <i className="text-xl text-blue-500 pi pi-shopping-bag" />
-                                </div>
-                            </div></div>
-                    </div>
-
-                     <div className="xl:col-4 col-12">
-                        <div className="card"><div className="flex mb-3 justify-content-between">
-                                <div>
-                                    <span className="block mb-3 font-medium text-500"> نسبة التسليم </span>
-                                    <div className="text-xl font-medium text-900">
-                                    <Knob value={proPerDilevery} /></div>
-                                </div>
-                                <div className="flex bg-green-100 align-items-center justify-content-center border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
-                                    <i className="text-xl text-green-500 pi pi-percentage " />
-                                </div>
-                            </div></div>
-                    </div>
-                </div>
-            </div>
             <div className="col-12" dir="rtl">
                 <div className="card">
                     <Toast ref={toast} />
@@ -885,10 +815,10 @@ onChange={(e)=>{cloadData(e.value)}}
                     >
                         <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
                         <Column field="id" header="معرف الطلب" sortable></Column>
+                        <Column field="status" header="الحالة" body={statusBodyTemplate} filter filterElement={statusFilterTemplate} sortable></Column>
                         <Column field="fullname" header="الاسم الكامل" sortable></Column>
                         <Column field="phone" header="الهاتف" sortable></Column>
                         {/* <Column field="address" header="عنوان" sortable></Column> */}
-                        <Column field="status" header="الحالة" body={statusBodyTemplate} filter filterElement={statusFilterTemplate} sortable></Column>
                         <Column field="total_price" header="السعر الاجمالي" sortable></Column>
                         <Column field="created_at" header="تاريخ الإنشاء" filter filterElement={dateRangeFilterTemplate} body={(rowData) => formatDate(rowData.created_at)} sortable></Column>
                         <Column body={actionBodyTemplate}></Column>
