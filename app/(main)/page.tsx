@@ -320,7 +320,7 @@ try {
                     )}
                 </Dialog>
 
-                <div className="col-12">
+                <div className="col-12 mt-2">
                     <div className="text-center card">
                         <h5> احصائيات الطلبات </h5>
                         <div className="flex flex-wrap gap-3 justify-content-center">
@@ -356,21 +356,22 @@ try {
                 <div className="col-12">
                     <div className="card">
                         <h5 className="text-center"> احصائيات المنتجات </h5>
-                        <div className="flex flex-wrap gap-3 justify-content-center">
+                        <div className="flex flex-wrap gap-3 justify-content-center mt-2">
                             <Calendar placeholder="start date" value={dateStart} onChange={(e) => setDateStart(e.value ?? null)} />
                             <Calendar placeholder=" end date" value={dateEnd} onChange={(e) => setDateEnd(e.value ?? null)} />
                         <Dropdown
 
                 options={allProducts}
+                value={selectedProductId}
 onChange={(e)=>{selectproduct(e.value)}}
                 placeholder="اختر المنتج"
                 className="p-column-filter"
-                //showClear
+                
             />
                             <Button onClick={getStatProd} icon="pi pi-search" rounded severity="success" />
 
                         </div>
-                        <div className="grid">
+                        <div className="grid mt-4">
                             <div className="xl:col-4 col-12">
                                 <div className="card">
                                     <div className="flex mb-3 justify-content-between">

@@ -792,7 +792,7 @@ const OrderPage = () => {
         <div className="grid Crud-demo" dir="rtl">
 
             <div className="col-12" dir="rtl">
-                <div className="card">
+                <div className="card px-0 xl:px-2 xl:mx-4">
                     <Toast ref={toast} />
                     <Toolbar className="mb-4" left={leftToolbarTemplate} center={centerToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
 
